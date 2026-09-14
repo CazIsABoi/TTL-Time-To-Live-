@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be86035d09ef77e4d80c069523c85da0, type: 3}
+  m_Name: Iron Wall
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  id: 50
+  title: Iron Wall
+  description: "Same job as scrap, fewer apologies. Tougher against Breakers."
+  rarity: 1
+  sizeX: 1
+  sizeY: 2
+  waveLifespan: 14
+  amount: 1
+  copiesInDeck: 1
+  category: 0
+  unlockScore: 50
+  prefab: {fileID: 0}
+  canRotate: 1

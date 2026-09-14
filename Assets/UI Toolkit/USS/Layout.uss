@@ -1,0 +1,228 @@
+:root {
+    --green: rgb(154, 241, 78);
+    --green-hover: rgb(103, 238, 51);
+}
+
+.hud-panel {
+    translate: 0 0;
+    opacity: 1;
+    transition-property: translate, opacity;
+    transition-duration: 0.45s;
+    transition-timing-function: ease-out;
+}
+
+.hud-panel.exit-up {
+    translate: 0 -160px;
+    opacity: 0;
+    transition-timing-function: ease-in;
+}
+.hud-panel.exit-right {
+    translate: 240px 0;
+    opacity: 0;
+    transition-timing-function: ease-in;
+}
+
+/* Instant hide so the first frame is already off-screen (no flash) */
+.hud-panel.intro-hold,
+.wave-button.intro-hold {
+    transition-duration: 0s;
+}
+
+.hud-panel.exit-down {
+    translate: 0 160px;
+    opacity: 0;
+    transition-timing-function: ease-in;
+}
+
+.hud-panel.exit-left {
+    translate: -240px 0;
+    opacity: 0;
+    transition-timing-function: ease-in;
+}
+
+.unity-progress-bar__progress {
+    -unity-background-image-tint-color: rgb(238, 51, 51);
+    background-color: rgb(103, 238, 51);
+}
+
+.unity-progress-bar__background {
+    -unity-background-image-tint-color: rgb(57, 62, 75);
+    background-color: rgb(76, 76, 96);
+}
+
+.wave-button {
+    position: absolute;
+    translate: 0 0;
+    scale: 1;
+    opacity: 1;
+    background-color: var(--green);
+    transition-property: translate, opacity;
+    transition-duration: 0.45s;
+    transition-timing-function: ease-in;
+}
+
+.wave-button.disabled {
+    transition-property: opacity;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+}
+
+.wave-button:hover {
+    background-color: var(--green-hover);
+}
+
+.wave-button:active {
+    background-color: rgb(80, 200, 40);
+}
+
+.wave-button.exit-down {
+    translate: 0 160px;
+    opacity: 0;
+}
+
+.wave-button.exit-up {
+    translate: 0 -160px;
+    opacity: 0;
+    transition-timing-function: ease-in;
+}
+
+.rarity-common {
+    border-left-color: rgb(127, 127, 127);
+    border-right-color: rgb(127, 127, 127);
+    border-top-color: rgb(127, 127, 127);
+    border-bottom-color: rgb(127, 127, 127);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 30px;
+}
+
+.rarity-common #banner {
+    background-color: rgb(127, 127, 127);
+}
+
+.rarity-uncommon {
+    border-left-color: rgb(53, 168, 11);
+    border-right-color: rgb(53, 168, 11);
+    border-top-color: rgb(53, 168, 11);
+    border-bottom-color: rgb(53, 168, 11);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 30px;
+}
+
+.rarity-uncommon #banner {
+    background-color: rgb(53, 168, 11);
+}
+
+.rarity-rare {
+    border-left-color: rgb(29, 126, 182);
+    border-right-color: rgb(29, 126, 182);
+    border-top-color: rgb(29, 126, 182);
+    border-bottom-color: rgb(29, 126, 182);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 30px;
+}
+
+.rarity-rare #banner {
+    background-color: rgb(29, 126, 182);
+}
+
+.rarity-epic {
+    border-left-color: rgb(130, 45, 246);
+    border-right-color: rgb(130, 45, 246);
+    border-top-color: rgb(130, 45, 246);
+    border-bottom-color: rgb(130, 45, 246);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 30px;
+}
+
+.rarity-epic #banner {
+    background-color: rgb(130, 45, 246);
+}
+
+.rarity-legendary {
+    border-left-color: rgb(254, 176, 84);
+    border-right-color: rgb(254, 176, 84);
+    border-top-color: rgb(254, 176, 84);
+    border-bottom-color: rgb(254, 176, 84);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 30px;
+}
+
+.rarity-legendary #banner {
+    background-color: rgb(254, 176, 84);
+}
+
+.Hand {
+}
+
+.card {
+    transition-property: translate, scale, opacity;
+    transition-duration: 0.35s;
+    transition-timing-function: ease-out;
+}
+
+.card.in-flight {
+    transition-duration: 0s;
+}
+
+.card.hidden {
+    opacity: 0;
+    translate: 0 0;
+    transition-duration: 0s;
+}
+
+.card:hover {
+    translate: 0 -10px;
+    scale: 1.03 1.03 1.03;
+    transition-property: translate, scale;
+    transition-timing-function: ease-out, ease-out;
+    transition-duration: 0.12s, 0.12s;
+}
+
+.card.selected {
+    translate: 0 -28px;
+    scale: 1.08 1.08 1.08;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+    transition-property: translate, scale;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.amount-label {
+}
+
+.amount-label.amount-hidden {
+    display: none;
+}

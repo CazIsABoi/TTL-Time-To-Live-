@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be86035d09ef77e4d80c069523c85da0, type: 3}
+  m_Name: Sandbag
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  id: 5
+  title: Sandbag
+  description: One bag is a bump Jumpers clear. Stack a second on the same tile to make a full wall.
+  rarity: 0
+  sizeX: 1
+  sizeY: 1
+  waveLifespan: 8
+  amount: 4
+  copiesInDeck: 20
+  category: 0
+  unlockScore: 0
+  prefab: {fileID: 6067709092033563481, guid: 873474b6286936a4f8bfc3c7c5ecc786, type: 3}
+  canRotate: 1
+  stackable: 1
+  maxStack: 2

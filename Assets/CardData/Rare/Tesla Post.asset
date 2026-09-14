@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be86035d09ef77e4d80c069523c85da0, type: 3}
+  m_Name: Tesla Post
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  id: 102
+  title: Tesla Post
+  description: Chains jolts between nearby enemies. Good vs Herds and Flyers.
+  rarity: 2
+  sizeX: 1
+  sizeY: 1
+  waveLifespan: 16
+  amount: 1
+  copiesInDeck: 1
+  category: 1
+  unlockScore: 500
+  prefab: {fileID: 0}
+  canRotate: 1
