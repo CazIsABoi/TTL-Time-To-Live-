@@ -287,7 +287,10 @@ public class GridManager : MonoBehaviour
     {
         return occupants.TryGetValue(cell, out var owner) && owner != null && owner != requester;
     }
-
+    public void ForceReserveCell(Vector2Int cell, GridAgent agent)
+    {
+        occupants[cell] = agent;
+    }
     public bool TryReserveCell(Vector2Int cell, GridAgent agent)
     {
         if (IsCellReserved(cell, agent)) return false;

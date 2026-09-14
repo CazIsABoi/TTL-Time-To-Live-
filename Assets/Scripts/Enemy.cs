@@ -43,6 +43,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] Transform visual;
     [Tooltip("Added on top of the grid surface after snapping spawn to a cell center. Use this if the prefab pivot is not at the feet.")]
     [SerializeField] float spawnGroundOffset = 0f;
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip deathClip;
 
     float bashTimer;
     Vector3 bashHome;
@@ -68,7 +70,7 @@ public class Enemy : MonoBehaviour
         }
 
         ttlTickTimer = TickManager.Instance != null ? TickManager.Instance.tickInterval : 0.5f;
-
+        audioSource = FindAnyObjectByType<AudioSource>();
         // try locate UI Toolkit label (PanelRenderer or UIDocument)
         panelRenderer = GetComponentInChildren<PanelRenderer>();
     }
@@ -207,10 +209,8 @@ public class Enemy : MonoBehaviour
         if (repathTimer <= 0f)
         {
             repathTimer = repathInterval;
-            // Only replan if we don't currently have a path, or if the path we have
-            // is no longer valid (e.g. a cell became blocked). Replanning unconditionally
-            // resets the agent back to its current cell center every interval, which
-            // causes a visible rubberband/snap-back effect.
+            if (agent.IsWaitingOnAgent)
+                return;
             if (!agent.HasPath || !IsPathStillValid())
                 Think();
         }
@@ -520,6 +520,7 @@ public class Enemy : MonoBehaviour
         if (isDead) return;
         isDead = true;
         Died?.Invoke(this);
+        audioSource.PlayOneShot(deathClip);
         ParticleSystem particles = Instantiate(destroyedParticles, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
