@@ -48,6 +48,13 @@ public class HandManager : MonoBehaviour
     // odds (e.g. boost Legendary chance) without touching the shared asset.
     private Dictionary<CardRarity, float> runtimeWeights;
 
+    const float TooltipDelaySeconds = 0.5f;
+    VisualElement tooltip;
+    Label tooltipTitle;
+    Label tooltipBody;
+    IVisualElementScheduledItem tooltipDelay;
+    int hoveredIndex = -1;
+
     private void Awake()
     {
         if (RunSeed.Instance == null)
@@ -180,18 +187,71 @@ public class HandManager : MonoBehaviour
         discardPileButton = root.Q<Button>("discard-top");
         drawPileElement = drawPileButton;
         discardPileElement = discardPileButton;
+        tooltip = root.Q<VisualElement>("card-tooltip");
+        tooltipTitle = tooltip.Q<Label>("card-tooltip-title");
+        tooltipBody = tooltip.Q<Label>("card-tooltip-body");
 
         for (int i = 0; i < 5; i++)
         {
             slotElements[i] = root.Q<VisualElement>("Slot" + (i + 1));
             cardButtons[i] = root.Q<Button>("card" + (i + 1));
 
-            if (cardButtons[i] != null)
-            {
-                int index = i;
-                cardButtons[i].clicked += () => OnCardClicked(index);
-            }
+            if (cardButtons[i] == null) continue;
+            int index = i;
+            cardButtons[i].RegisterCallback<PointerEnterEvent>(_ => OnCardPointerEnter(index));
+            cardButtons[i].RegisterCallback<PointerLeaveEvent>(_ => OnCardPointerLeave(index));
         }
+    }
+
+    void OnCardPointerEnter(int index)
+    {
+        if (hand[index] == null) return;
+        hoveredIndex = index;
+        tooltipDelay?.Pause();
+        tooltipDelay = cardButtons[index].schedule
+            .Execute(() => ShowTooltip(index))
+            .StartingIn((long)(TooltipDelaySeconds * 1000));
+    }
+
+    void OnCardPointerLeave(int index)
+    {
+        if (hoveredIndex != index) return;
+        tooltipDelay?.Pause();
+        tooltipDelay = null;
+        hoveredIndex = -1;
+        HideTooltip();
+    }
+
+    void ShowTooltip(int index)
+    {
+        if (index != hoveredIndex) return;
+        CardData card = hand[index];
+        Button button = cardButtons[index];
+        if (card == null || button == null || tooltip == null) return;
+        tooltipTitle.text = card.title;
+        tooltipBody.text = string.IsNullOrEmpty(card.description) ? "No description." : card.description;
+        tooltip.RemoveFromClassList("hidden");
+        tooltip.style.opacity = 0f; // hide until placed
+                                    // Wait 1 frame so resolvedStyle has real size
+        tooltip.schedule.Execute(() =>
+        {
+            if (index != hoveredIndex || button == null) return;
+            Rect b = button.worldBound;
+            float tipW = Mathf.Max(tooltip.resolvedStyle.width, 180f);
+            float tipH = Mathf.Max(tooltip.resolvedStyle.height, 70f);
+            const float gap = 16f; // bump this (20–28) if you want even higher
+            VisualElement host = tooltip.parent;
+            Vector2 worldPos = new Vector2(b.center.x - tipW * 0.5f, b.yMin - tipH - gap);
+            Vector2 local = host != null ? host.WorldToLocal(worldPos) : worldPos;
+            tooltip.style.left = local.x;
+            tooltip.style.top = local.y;
+            tooltip.style.opacity = 1f;
+        }).ExecuteLater(1);
+    }
+
+    void HideTooltip()
+    {
+        tooltip?.AddToClassList("hidden");
     }
 
     private void OnCardClicked(int index)

@@ -77,6 +77,11 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
+            <ui:VisualElement name="card-tooltip" picking-mode="Ignore" class="card-tooltip hidden">
+                <ui:Label name="card-tooltip-title" picking-mode="Ignore" class="card-tooltip-title"/>
+                <ui:Label name="card-tooltip-body" picking-mode="Ignore" class="card-tooltip-body"/>
+            </ui:VisualElement>
+
             <ui:VisualElement name="discard" picking-mode="Ignore" class="pile">
                 <ui:VisualElement name="discard-stack" picking-mode="Ignore" class="pile-stack">
                     <ui:VisualElement name="deck-back-2" picking-mode="Ignore" class="pile-back" style="translate: 8px 8px; background-image: url(&quot;project://database/Assets/Art/CardBack.png?fileID=2800000&amp;guid=526c2d21f450232488b99d1a19d778f0&amp;type=3#CardBack&quot;);"/>

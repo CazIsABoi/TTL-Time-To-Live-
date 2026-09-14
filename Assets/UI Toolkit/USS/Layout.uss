@@ -525,3 +525,42 @@
 .amount-label.amount-hidden {
     display: none;
 }
+
+.card-tooltip {
+    position: absolute;
+    min-width: 180px;
+    max-width: 260px;
+    padding: 10px 12px;
+    background-color: rgba(28, 26, 24, 0.94);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: var(--kit-edge);
+    border-right-color: var(--kit-edge);
+    border-bottom-color: var(--kit-edge);
+    border-left-color: var(--kit-edge);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    opacity: 1;
+    transition-property: opacity;
+    transition-duration: 0.12s;
+}
+.card-tooltip.hidden {
+    opacity: 0;
+    display: none;
+}
+.card-tooltip-title {
+    color: var(--kit-text);
+    font-size: 14px;
+    margin-bottom: 6px;
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf");
+}
+.card-tooltip-body {
+    color: var(--kit-muted);
+    font-size: 12px;
+    white-space: normal;
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf");
+}
