@@ -36,7 +36,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float ttlPadding = 0f;
     [SerializeField] private float minTTL = 1f;
     [SerializeField] private ParticleSystem destroyedParticles;
-    [SerializeField] BreakableKind canBreak = BreakableKind.Loose;
+    [SerializeField] BreakableKind canBreak = BreakableKind.None;
     [SerializeField] float bashDistance = 0.28f;
     [SerializeField] float bashOutTime = 0.08f;
     [SerializeField] float bashBackTime = 0.12f;
@@ -239,6 +239,13 @@ public class Enemy : MonoBehaviour
         }
 
         if (targetObstacle == null) return;
+        if (!targetObstacle.CanBeBrokenBy(canBreak))
+        {
+            // Can't smash this — stop treating it as a target
+            targetObstacle = null;
+            if (agent != null) agent.isStopped = false;
+            return;
+        }
 
         // Smash only from a 4-directional neighboring cell, never diagonal or from range.
         if (!IsOrthogonallyAdjacentTo(targetObstacle))
@@ -391,43 +398,6 @@ public class Enemy : MonoBehaviour
         }
 
         return best != null;
-    }
-
-    private Obstacle FindBlockingObstacle()
-    {
-        Vector3 probe = exit != null ? exit.position : transform.position;
-        Vector3 toExit = exit.position - transform.position;
-        toExit.y = 0f;
-
-        Obstacle best = null;
-        float bestScore = float.MaxValue;
-
-        for (int i = 0; i < Obstacle.All.Count; i++)
-        {
-            Obstacle o = Obstacle.All[i];
-            if (o == null) continue;
-
-            if (!TryGetApproachPoint(o, out Vector3 approach))
-                continue; // no orthogonal walkable cell to stand on
-
-            Vector3 toObs = o.Position - transform.position;
-            toObs.y = 0f;
-            if (toExit.sqrMagnitude > 0.01f && Vector3.Dot(toExit.normalized, toObs) < 0f)
-                continue;
-
-            float score =
-                DistanceOnXZ(o.Position, exit.position) * exitWeight +
-                DistanceOnXZ(o.Position, transform.position) * agentWeight +
-                DistanceOnXZ(probe, o.Position) * probeWeight;
-
-            if (score < bestScore)
-            {
-                bestScore = score;
-                best = o;
-            }
-        }
-
-        return best;
     }
 
     static readonly Vector2Int[] OrthoDeltas =

@@ -89,6 +89,7 @@ public class GameController : MonoBehaviour
             while (aliveEnemies > 0)
                 yield return null;
 
+            FindAnyObjectByType<BgmLayers>()?.ToBuild();
             IsBetweenWaves = true;
             handManager?.StartNewHand();
             level++;

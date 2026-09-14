@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.UIElements.Experimental;
-using static UnityEngine.Android.AndroidBuild;
 
 public class WaveButtonUI : MonoBehaviour
 {
@@ -15,6 +12,7 @@ public class WaveButtonUI : MonoBehaviour
     int uiVersion = -1;
 
     [SerializeField] OrbitCamera orbitCamera;
+    [SerializeField] BgmLayers bgm;
     bool introDone;
 
     void OnEnable()
@@ -22,6 +20,7 @@ public class WaveButtonUI : MonoBehaviour
         gameController = GetComponent<GameController>();
         handManager = GetComponent<HandManager>();
         panelRenderer = GetComponent<PanelRenderer>();
+
         if (panelRenderer == null)
         {
             Debug.LogError("WaveButtonUI needs a Panel Renderer on this GameObject.");
@@ -33,6 +32,8 @@ public class WaveButtonUI : MonoBehaviour
         introDone = orbitCamera == null;
         if (orbitCamera != null)
             orbitCamera.OnIntroFinished += HandleIntroFinished;
+        else
+            bgm?.ToBuild();
     }
 
     void OnDisable()
@@ -50,13 +51,14 @@ public class WaveButtonUI : MonoBehaviour
     void HandleIntroFinished()
     {
         introDone = true;
+        bgm?.ToBuild(); // intro clip → build clip on BGM_Build, wave stays silent
+        if (gameController != null && gameController.IsBetweenWaves)
+            ShowAgain();
     }
 
     void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
     {
-        if (version == uiVersion)
-            return;
-
+        if (version == uiVersion) return;
         uiVersion = version;
         UnbindButton();
 
@@ -68,9 +70,19 @@ public class WaveButtonUI : MonoBehaviour
         }
 
         button.clicked += OnWaveClicked;
-
         impossibleLabel = root.Q<Label>("impossible-label");
+        if (!introDone) HideForIntro();
     }
+
+    void HideForIntro()
+    {
+        if (button == null) return;
+        button.style.display = DisplayStyle.None;
+        button.style.opacity = 0f;
+        button.pickingMode = PickingMode.Ignore;
+        button.SetEnabled(false);
+    }
+
     void UnbindButton()
     {
         if (button != null)
@@ -79,10 +91,17 @@ public class WaveButtonUI : MonoBehaviour
             button = null;
         }
     }
-    private void Update()
+
+    void Update()
     {
-        if (gameController == null) return;
-        if (introDone && gameController.IsBetweenWaves)
+        if (gameController == null || button == null) return;
+        if (!introDone)
+        {
+            if (button.style.display != DisplayStyle.None)
+                HideForIntro();
+            return;
+        }
+        if (gameController.IsBetweenWaves)
             ShowAgain();
         UpdateImpossibleState();
     }
@@ -96,10 +115,8 @@ public class WaveButtonUI : MonoBehaviour
 
         bool blocked = gameController.IsBetweenWaves && !gameController.IsExitReachable;
         button.SetEnabled(!blocked);
-        if (blocked)
-            button.AddToClassList("disabled");
-        else
-            button.RemoveFromClassList("disabled");
+        if (blocked) button.AddToClassList("disabled");
+        else button.RemoveFromClassList("disabled");
         button.style.opacity = blocked ? 0.4f : 1f;
         button.pickingMode = blocked ? PickingMode.Ignore : PickingMode.Position;
     }
@@ -110,6 +127,7 @@ public class WaveButtonUI : MonoBehaviour
         {
             handManager?.DiscardCurrentHand();
             gameController.SetIsBetweenWaves(false);
+            bgm?.ToWave();
             PlayExit();
         }
     }
@@ -119,8 +137,6 @@ public class WaveButtonUI : MonoBehaviour
         if (button == null) return;
         button.pickingMode = PickingMode.Ignore;
         button.SetEnabled(false);
-        button.RemoveFromClassList("exit-down");
-        button.RemoveFromClassList("exit-up");
         button.style.transitionProperty = new List<StylePropertyName> { "translate", "opacity" };
         button.style.transitionDuration = new List<TimeValue> { new TimeValue(450, TimeUnit.Millisecond) };
         button.style.transitionTimingFunction = new List<EasingFunction> { EasingMode.EaseIn };
@@ -138,12 +154,9 @@ public class WaveButtonUI : MonoBehaviour
     public void ShowAgain()
     {
         if (button == null) return;
-
         button.style.translate = new Translate(0, 0);
         button.style.opacity = 1f;
         button.style.display = DisplayStyle.Flex;
-        button.RemoveFromClassList("exit-up");
-        button.RemoveFromClassList("exit-down");
         button.pickingMode = PickingMode.Position;
         button.SetEnabled(true);
     }
