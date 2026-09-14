@@ -41,6 +41,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] float bashOutTime = 0.08f;
     [SerializeField] float bashBackTime = 0.12f;
     [SerializeField] Transform visual;
+    [Tooltip("Added on top of the grid surface after snapping spawn to a cell center. Use this if the prefab pivot is not at the feet.")]
+    [SerializeField] float spawnGroundOffset = 0f;
 
     float bashTimer;
     Vector3 bashHome;
@@ -90,9 +92,42 @@ public class Enemy : MonoBehaviour
     public void Initialize(Transform targetTransform)
     {
         exit = targetTransform;
+        SnapSpawnToGrid();
         if (autoStartingTTL)
             ApplyStartingTTL();
         Think();
+    }
+
+    // Spawn transforms are often at ground height with a centered mesh pivot,
+    // and rarely sit on an exact cell center. Snap XZ to the cell and lift the
+    // renderer onto the surface so the first move is a full tile at tick speed.
+    void SnapSpawnToGrid()
+    {
+        var gm = GridManager.Instance;
+        if (gm == null) return;
+
+        Vector2Int cell = gm.WorldToCell(transform.position);
+        Vector3 center = gm.CellToWorld(cell.x, cell.y);
+
+        transform.position = new Vector3(center.x, transform.position.y, center.z);
+
+        var rends = GetComponentsInChildren<Renderer>();
+        if (rends != null && rends.Length > 0)
+        {
+            Bounds b = rends[0].bounds;
+            for (int i = 1; i < rends.Length; i++)
+            {
+                if (rends[i] != null)
+                    b.Encapsulate(rends[i].bounds);
+            }
+
+            float delta = (center.y + spawnGroundOffset) - b.min.y;
+            transform.position += Vector3.up * delta;
+        }
+        else
+        {
+            transform.position = new Vector3(center.x, center.y + spawnGroundOffset, center.z);
+        }
     }
 
     /// <summary>

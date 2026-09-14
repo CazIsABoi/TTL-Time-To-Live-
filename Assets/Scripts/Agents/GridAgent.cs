@@ -21,6 +21,34 @@ public class GridAgent : MonoBehaviour
     {
         pathWorld = worldPositions ?? new List<Vector3>();
         pathIndex = 0;
+        SkipWaypointsAlreadyOccupied();
+        FaceCurrentWaypoint();
+    }
+
+    // Don't walk to the center of the cell we already stand in. That first
+    // "correction" step is a random fraction of a tile (spawn offset / facing)
+    // and is what staggers enemy timing.
+    void SkipWaypointsAlreadyOccupied()
+    {
+        var gm = GridManager.Instance;
+        if (gm == null || pathWorld == null || pathWorld.Count == 0) return;
+
+        Vector2Int here = gm.WorldToCell(transform.position);
+        while (pathIndex < pathWorld.Count)
+        {
+            Vector2Int waypointCell = gm.WorldToCell(pathWorld[pathIndex]);
+            if (waypointCell != here) break;
+            pathIndex++;
+        }
+    }
+
+    public void FaceCurrentWaypoint()
+    {
+        if (!HasPath) return;
+        Vector3 target = pathWorld[pathIndex];
+        Vector3 dir = new Vector3(target.x - transform.position.x, 0f, target.z - transform.position.z);
+        if (dir.sqrMagnitude > 0.0001f)
+            transform.forward = dir.normalized;
     }
 
     // Expose path for visualization

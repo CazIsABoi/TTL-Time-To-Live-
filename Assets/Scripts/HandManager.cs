@@ -8,11 +8,6 @@ public class HandManager : MonoBehaviour
     [SerializeField] private CardDatabase cardDatabase;
     [SerializeField] private RarityWeightConfig rarityWeightConfig;
 
-    // Run seed for reproducible roguelike draws. TODO: wire this to wherever
-    // the run seed is generated/stored (e.g. GameController or a RunData asset)
-    // instead of defaulting to a random seed here.
-    [SerializeField] private int runSeed = 0;
-    [SerializeField] private bool useRandomSeedIfZero = true;
     [SerializeField] OrbitCamera orbitCamera;
     [SerializeField] bool dealOpeningHandAfterIntro = true;
     bool openingHandDealt;

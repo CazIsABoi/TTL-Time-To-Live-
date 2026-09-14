@@ -13,6 +13,8 @@ public class GameController : MonoBehaviour
     [SerializeField] private HandManager handManager;
     [Tooltip("Reachability treats cells occupied by obstacles this kind can smash as still connected. Loose matches default drifters.")]
     [SerializeField] private BreakableKind reachabilityBreakKind = BreakableKind.Loose;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip waveStartClip;
     private int aliveEnemies = 0;
     private UIController uiController;
 
@@ -77,6 +79,7 @@ public class GameController : MonoBehaviour
             if (IsBetweenWaves)
                 yield return new WaitUntil(() => !IsBetweenWaves);
 
+            audioSource.PlayOneShot(waveStartClip);
             for (int i = 0; i < enemiesPerLevel; i++)
             {
                 spawner.SpawnOne(OnEnemyDied);

@@ -64,7 +64,7 @@ public class EnemySpawnPoint : MonoBehaviour
 
         Vector2Int spawnCell = gm.WorldToCell(transform.position);
 
-        var buildings = FindObjectsByType<PlacedBuilding>(FindObjectsSortMode.None);
+        var buildings = FindObjectsByType<PlacedBuilding>();
         foreach (var building in buildings)
         {
             if (building == null) continue;
