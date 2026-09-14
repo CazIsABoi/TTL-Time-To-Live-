@@ -55,8 +55,15 @@ public class HandManager : MonoBehaviour
 
     private void Awake()
     {
-        int seed = (runSeed == 0 && useRandomSeedIfZero) ? System.Guid.NewGuid().GetHashCode() : runSeed;
-        rng = new System.Random(seed);
+        if (RunSeed.Instance == null)
+        {
+            Debug.LogError("HandManager needs a RunSeed in the scene.");
+            rng = new System.Random();
+        }
+        else
+        {
+            rng = RunSeed.Instance.CreateRng("hand");
+        }
 
         runtimeWeights = rarityWeightConfig != null
             ? rarityWeightConfig.ToRuntimeDictionary()

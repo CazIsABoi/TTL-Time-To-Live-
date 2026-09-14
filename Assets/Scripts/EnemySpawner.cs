@@ -32,6 +32,7 @@ public class EnemySpawner : MonoBehaviour
 
     public Transform[] SpawnPoints => spawnPoints;
     public Transform Target => target;
+    private System.Random rng;
 
     private float nextSpawnTime;
 
@@ -40,6 +41,9 @@ public class EnemySpawner : MonoBehaviour
         currentEnemyPrefab = drifterPrefab;
         if (gameController == null)
             gameController = FindAnyObjectByType<GameController>();
+        rng = RunSeed.Instance != null
+    ? RunSeed.Instance.CreateRng("enemies")
+    : new System.Random();
     }
     private void Start()
     {

@@ -14,6 +14,10 @@ public class GridManager : MonoBehaviour
     private GridCell[] cells;
     private readonly Dictionary<Vector2Int, GridAgent> occupants = new Dictionary<Vector2Int, GridAgent>();
     private readonly List<EnemySpawnPoint> spawnPointExclusions = new List<EnemySpawnPoint>();
+    private readonly Dictionary<Vector2Int, Obstacle> cellObstacles = new Dictionary<Vector2Int, Obstacle>();
+
+    [Tooltip("Extra A* cost for stepping onto a smashable obstacle cell. Higher values make enemies walk around when a gap exists.")]
+    public int breakCellCost = 8;
 
     public event Action GridRebuilt;
 
@@ -130,28 +134,71 @@ public class GridManager : MonoBehaviour
 
     public List<Vector2Int> GetNeighbors(Vector2Int cell)
     {
+        return GetNeighbors(cell, BreakableKind.None);
+    }
+
+    public List<Vector2Int> GetNeighbors(Vector2Int cell, BreakableKind canBreak)
+    {
         var list = new List<Vector2Int>(4);
-        // 4-directional
         Vector2Int[] deltas = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
         foreach (var d in deltas)
         {
             var n = cell + d;
-            if (n.x >= 0 && n.x < width && n.y >= 0 && n.y < height && IsWalkable(n.x, n.y))
+            if (n.x >= 0 && n.x < width && n.y >= 0 && n.y < height && IsPathable(n, canBreak))
                 list.Add(n);
         }
 
         return list;
     }
 
+    // Walkable cells are always pathable. Unwalkable cells are pathable only when
+    // they hold an obstacle this breaker is allowed to smash (or one that does
+    // not actually block pathing).
+    public bool IsPathable(Vector2Int cell, BreakableKind canBreak)
+    {
+        return IsPathable(cell.x, cell.y, canBreak);
+    }
+
+    public bool IsPathable(int x, int y, BreakableKind canBreak)
+    {
+        if (IsWalkable(x, y)) return true;
+
+        if (!TryGetObstacle(new Vector2Int(x, y), out var obstacle) || obstacle == null)
+            return false;
+
+        if (!obstacle.BlocksPath)
+            return true;
+
+        return canBreak != BreakableKind.None && obstacle.CanBeBrokenBy(canBreak);
+    }
+
+    public int GetMoveCost(Vector2Int cell)
+    {
+        if (IsWalkable(cell.x, cell.y)) return 1;
+        if (TryGetObstacle(cell, out var obstacle) && obstacle != null && !obstacle.BlocksPath)
+            return 1;
+        return Mathf.Max(2, breakCellCost);
+    }
+
     public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal)
     {
-        return AStarPathfinder.FindPath(start, goal, this);
+        return AStarPathfinder.FindPath(start, goal, this, BreakableKind.None);
+    }
+
+    public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal, BreakableKind canBreak)
+    {
+        return AStarPathfinder.FindPath(start, goal, this, canBreak);
     }
 
     public bool IsReachable(Vector2Int start, Vector2Int goal)
     {
+        return IsReachable(start, goal, BreakableKind.None);
+    }
+
+    public bool IsReachable(Vector2Int start, Vector2Int goal, BreakableKind canBreak)
+    {
         if (!InBounds(start) || !InBounds(goal)) return false;
-        if (!IsWalkable(start.x, start.y) || !IsWalkable(goal.x, goal.y)) return false;
+        if (!IsPathable(start, canBreak) || !IsPathable(goal, canBreak)) return false;
         if (start == goal) return true;
 
         var visited = new HashSet<Vector2Int> { start };
@@ -161,7 +208,7 @@ public class GridManager : MonoBehaviour
         while (queue.Count > 0)
         {
             var current = queue.Dequeue();
-            foreach (var n in GetNeighbors(current))
+            foreach (var n in GetNeighbors(current, canBreak))
             {
                 if (n == goal) return true;
                 if (visited.Add(n))
@@ -169,6 +216,62 @@ public class GridManager : MonoBehaviour
             }
         }
 
+        return false;
+    }
+
+    public void RegisterObstacleCell(Vector2Int cell, Obstacle obstacle)
+    {
+        if (obstacle == null) return;
+        cellObstacles[cell] = obstacle;
+    }
+
+    public void RegisterObstacleCells(IEnumerable<Vector2Int> cells, Obstacle obstacle)
+    {
+        if (cells == null || obstacle == null) return;
+        foreach (var cell in cells)
+            cellObstacles[cell] = obstacle;
+    }
+
+    public void UnregisterObstacleCells(IEnumerable<Vector2Int> cells, Obstacle obstacle = null)
+    {
+        if (cells == null) return;
+        foreach (var cell in cells)
+        {
+            if (!cellObstacles.TryGetValue(cell, out var owner))
+                continue;
+            if (obstacle == null || owner == obstacle || owner == null)
+                cellObstacles.Remove(cell);
+        }
+    }
+
+    public bool TryGetObstacle(Vector2Int cell, out Obstacle obstacle)
+    {
+        if (cellObstacles.TryGetValue(cell, out obstacle) && obstacle != null)
+            return true;
+
+        // Fallback for scene-placed obstacles that never went through GridBuildPlacer.
+        for (int i = 0; i < Obstacle.All.Count; i++)
+        {
+            var o = Obstacle.All[i];
+            if (o == null) continue;
+
+            var placed = o.GetComponent<PlacedBuilding>();
+            if (placed != null && placed.cells != null && placed.cells.Contains(cell))
+            {
+                cellObstacles[cell] = o;
+                obstacle = o;
+                return true;
+            }
+
+            if (placed == null && WorldToCell(o.Position) == cell)
+            {
+                cellObstacles[cell] = o;
+                obstacle = o;
+                return true;
+            }
+        }
+
+        obstacle = null;
         return false;
     }
 

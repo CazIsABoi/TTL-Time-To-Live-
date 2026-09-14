@@ -1,5 +1,6 @@
-
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,7 +8,8 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] private int health = 20;
     [SerializeField] private int attackDamage = 1;
-    [SerializeField] private float attackRange = 1.6f;
+    [SerializeField, Tooltip("Unused for obstacle smashing — smash attacks require a 4-direction adjacent cell.")]
+    private float attackRange = 1.6f;
     [SerializeField] private float attackInterval = 0.6f;
     [SerializeField] private float repathInterval = 0.4f;
     [SerializeField] private float exitWeight = 1.2f;
@@ -34,6 +36,15 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float ttlPadding = 0f;
     [SerializeField] private float minTTL = 1f;
     [SerializeField] private ParticleSystem destroyedParticles;
+    [SerializeField] BreakableKind canBreak = BreakableKind.Loose;
+    [SerializeField] float bashDistance = 0.28f;
+    [SerializeField] float bashOutTime = 0.08f;
+    [SerializeField] float bashBackTime = 0.12f;
+    [SerializeField] Transform visual;
+
+    float bashTimer;
+    Vector3 bashHome;
+    bool bashing;
 
     private float ttlTickTimer;
     private Label ttlLabel;
@@ -145,6 +156,13 @@ public class Enemy : MonoBehaviour
         SetTTL(computed);
         return computed;
     }
+    void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
+    {
+        if (root == null) return;
+        ttlLabel = root.Q<Label>("ttl-label");
+        if (ttlLabel != null)
+            ttlLabel.text = Mathf.Max(0f, ttl).ToString("F1");
+    }
 
     private void Update()
     {
@@ -187,21 +205,20 @@ public class Enemy : MonoBehaviour
 
         if (targetObstacle == null) return;
 
-        if (DistanceOnXZ(transform.position, targetObstacle.Position) <= attackRange)
-        {
-            if (!agent.isStopped)
-            {
-                agent.isStopped = true;
-            }
+        // Smash only from a 4-directional neighboring cell, never diagonal or from range.
+        if (!IsOrthogonallyAdjacentTo(targetObstacle))
+            return;
 
-            attackTimer -= Time.deltaTime;
-            if (attackTimer <= 0f)
-            {
-                targetObstacle.TakeDamage(attackDamage);
-                TakeDamage(targetObstacle.ContactDamage);
-                attackTimer = attackInterval;
-            }
-        }
+        if (!agent.isStopped)
+            agent.isStopped = true;
+
+        if (bashing) return;
+
+        attackTimer -= Time.deltaTime;
+        if (attackTimer > 0f) return;
+        attackTimer = attackInterval;
+
+        StartCoroutine(BashThenHit(targetObstacle));
     }
 
     private void OnWorldChanged()
@@ -224,48 +241,121 @@ public class Enemy : MonoBehaviour
         foreach (var worldPos in path)
         {
             var cell = gm.WorldToCell(worldPos);
-            if (!gm.IsWalkable(cell.x, cell.y))
-                return false;
+            if (gm.IsPathable(cell, canBreak))
+                continue;
+            return false;
         }
         return true;
     }
 
-    private void Think()
+    void Think()
     {
         if (GridManager.Instance == null || agent == null) return;
-
         var gm = GridManager.Instance;
         Vector2Int start = gm.WorldToCell(transform.position);
         Vector2Int goal = gm.WorldToCell(exit.position);
-        var path = gm.FindPath(start, goal);
-        if (path != null)
+
+        var path = gm.FindPath(start, goal, canBreak);
+        if (path != null && path.Count > 0)
         {
+            Obstacle firstBreak = FirstBreakableOnPath(gm, path);
+            if (firstBreak != null)
+            {
+                targetObstacle = firstBreak;
+                agent.isStopped = false;
+                var worldPath = WalkablePrefixWorld(gm, path, firstBreak);
+                if (TryGetApproachPoint(firstBreak, out Vector3 approach))
+                {
+                    if (worldPath.Count == 0 || DistanceOnXZ(worldPath[worldPath.Count - 1], approach) > 0.15f)
+                        worldPath.Add(approach);
+                }
+                else if (worldPath.Count == 0)
+                {
+                    worldPath.Add(firstBreak.Position);
+                }
+                agent.SetPath(worldPath);
+                return;
+            }
+
             targetObstacle = null;
             agent.isStopped = false;
-            var worldPath = new System.Collections.Generic.List<Vector3>(path.Count);
+            var worldPathOpen = new List<Vector3>(path.Count);
             foreach (var c in path)
-                worldPath.Add(gm.CellToWorld(c.x, c.y));
-            agent.SetPath(worldPath);
+                worldPathOpen.Add(gm.CellToWorld(c.x, c.y));
+            agent.SetPath(worldPathOpen);
             return;
         }
 
-        targetObstacle = FindBlockingObstacle();
-        if (targetObstacle == null)
-            return;
-
-        if (TryGetApproachPoint(targetObstacle, out Vector3 approach))
+        if (TryFindSmashTarget(out Obstacle smash, out Vector3 rim))
         {
+            targetObstacle = smash;
             agent.isStopped = false;
-            agent.SetPath(new System.Collections.Generic.List<Vector3> { approach });
+            agent.SetPath(new List<Vector3> { rim });
         }
     }
 
-    private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
+    Obstacle FirstBreakableOnPath(GridManager gm, List<Vector2Int> path)
     {
-        if (root == null) return;
-        ttlLabel = root.Q<Label>("ttl-label");
-        if (ttlLabel != null)
-            ttlLabel.text = ttl.ToString("F1");
+        if (path == null) return null;
+        for (int i = 0; i < path.Count; i++)
+        {
+            var cell = path[i];
+            if (gm.IsWalkable(cell.x, cell.y)) continue;
+            if (gm.TryGetObstacle(cell, out var obstacle) && obstacle != null && obstacle.CanBeBrokenBy(canBreak))
+                return obstacle;
+        }
+        return null;
+    }
+
+    List<Vector3> WalkablePrefixWorld(GridManager gm, List<Vector2Int> path, Obstacle smash)
+    {
+        var world = new List<Vector3>();
+        if (path == null) return world;
+
+        for (int i = 0; i < path.Count; i++)
+        {
+            var cell = path[i];
+            if (gm.TryGetObstacle(cell, out var obstacle) && obstacle == smash)
+                break;
+            if (gm.IsWalkable(cell.x, cell.y))
+                world.Add(gm.CellToWorld(cell.x, cell.y));
+        }
+        return world;
+    }
+
+    bool TryFindSmashTarget(out Obstacle best, out Vector3 approach)
+    {
+        best = null;
+        approach = default;
+        if (canBreak == BreakableKind.None || exit == null) return false;
+
+        Vector3 toExit = exit.position - transform.position;
+        toExit.y = 0f;
+        float bestScore = float.MaxValue;
+
+        for (int i = 0; i < Obstacle.All.Count; i++)
+        {
+            Obstacle o = Obstacle.All[i];
+            if (o == null || !o.CanBeBrokenBy(canBreak)) continue;
+            if (!TryGetApproachPoint(o, out Vector3 rim)) continue;
+
+            Vector3 toObs = o.Position - transform.position;
+            toObs.y = 0f;
+            if (toExit.sqrMagnitude > 0.01f && Vector3.Dot(toExit.normalized, toObs) < 0.15f)
+                continue; // behind them / already passed
+
+            float score =
+                DistanceOnXZ(transform.position, o.Position) * agentWeight +
+                DistanceOnXZ(o.Position, exit.position) * exitWeight;
+            if (score < bestScore)
+            {
+                bestScore = score;
+                best = o;
+                approach = rim;
+            }
+        }
+
+        return best != null;
     }
 
     private Obstacle FindBlockingObstacle()
@@ -283,10 +373,7 @@ public class Enemy : MonoBehaviour
             if (o == null) continue;
 
             if (!TryGetApproachPoint(o, out Vector3 approach))
-                continue; // buried in the pile — skip
-
-            if (DistanceOnXZ(approach, o.Position) > attackRange)
-                continue; // rim is too far from this cube to hit it
+                continue; // no orthogonal walkable cell to stand on
 
             Vector3 toObs = o.Position - transform.position;
             toObs.y = 0f;
@@ -308,29 +395,75 @@ public class Enemy : MonoBehaviour
         return best;
     }
 
+    static readonly Vector2Int[] OrthoDeltas =
+    {
+        Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
+    };
+
+    bool IsOrthogonallyAdjacentTo(Obstacle obstacle)
+    {
+        var gm = GridManager.Instance;
+        if (gm == null || obstacle == null) return false;
+        return IsOrthogonallyAdjacent(gm.WorldToCell(transform.position), obstacle);
+    }
+
+    bool IsOrthogonallyAdjacent(Vector2Int from, Obstacle obstacle)
+    {
+        foreach (var cell in GetOccupiedCells(obstacle))
+        {
+            if (Mathf.Abs(from.x - cell.x) + Mathf.Abs(from.y - cell.y) == 1)
+                return true;
+        }
+        return false;
+    }
+
+    static IEnumerable<Vector2Int> GetOccupiedCells(Obstacle obstacle)
+    {
+        if (obstacle == null) yield break;
+
+        var placed = obstacle.GetComponent<PlacedBuilding>();
+        if (placed != null && placed.cells != null && placed.cells.Count > 0)
+        {
+            for (int i = 0; i < placed.cells.Count; i++)
+                yield return placed.cells[i];
+            yield break;
+        }
+
+        var gm = GridManager.Instance;
+        if (gm != null)
+            yield return gm.WorldToCell(obstacle.Position);
+    }
+
     private bool TryGetApproachPoint(Obstacle obstacle, out Vector3 approach)
     {
         approach = default;
         var gm = GridManager.Instance;
-        if (gm == null) return false;
+        if (gm == null || obstacle == null) return false;
 
-        // sample multiple directions around the obstacle to find a nearby walkable cell
-        int samples = 12;
-        float sampleRadius = Mathf.Max(0.5f, agentRadius + attackRange * 0.5f);
-        for (int i = 0; i < samples; i++)
+        Vector2Int self = gm.WorldToCell(transform.position);
+        Vector2Int bestCell = default;
+        float bestDist = float.MaxValue;
+        bool found = false;
+
+        foreach (var occupied in GetOccupiedCells(obstacle))
         {
-            float angle = (360f / samples) * i;
-            Vector3 dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
-            Vector3 candidate = obstacle.Position + dir * sampleRadius;
-            Vector2Int cell = gm.WorldToCell(candidate);
-            if (gm.IsWalkable(cell.x, cell.y))
+            for (int i = 0; i < OrthoDeltas.Length; i++)
             {
-                approach = gm.CellToWorld(cell.x, cell.y);
-                return true;
+                Vector2Int n = occupied + OrthoDeltas[i];
+                if (!gm.IsWalkable(n.x, n.y)) continue;
+
+                float dist = Mathf.Abs(self.x - n.x) + Mathf.Abs(self.y - n.y);
+                if (dist >= bestDist) continue;
+
+                bestDist = dist;
+                bestCell = n;
+                found = true;
             }
         }
 
-        return false;
+        if (!found) return false;
+        approach = gm.CellToWorld(bestCell.x, bestCell.y);
+        return true;
     }
 
     private static float DistanceOnXZ(Vector3 a, Vector3 b)
@@ -363,5 +496,46 @@ public class Enemy : MonoBehaviour
         if (ttlLabel != null)
             ttlLabel.text = Mathf.Max(0f, ttl).ToString("F1");
         return oldTTL;
+    }
+
+    IEnumerator BashThenHit(Obstacle obstacle)
+    {
+        if (obstacle == null) yield break;
+        bashing = true;
+
+        Transform xf = visual != null ? visual : transform;
+        bashHome = xf.localPosition;
+
+        Vector3 worldToward = obstacle.Position - transform.position;
+        worldToward.y = 0f;
+        if (worldToward.sqrMagnitude < 0.0001f)
+            worldToward = transform.forward;
+        Vector3 localToward = xf.parent != null
+            ? xf.parent.InverseTransformDirection(worldToward.normalized)
+            : worldToward.normalized;
+
+        float t = 0f;
+        Vector3 outPos = bashHome + localToward * bashDistance;
+        while (t < bashOutTime)
+        {
+            t += Time.deltaTime;
+            xf.localPosition = Vector3.Lerp(bashHome, outPos, t / bashOutTime);
+            yield return null;
+        }
+
+        if (obstacle != null)
+            obstacle.TakeDamage(attackDamage);
+
+        t = 0f;
+        Vector3 from = xf.localPosition;
+        while (t < bashBackTime)
+        {
+            t += Time.deltaTime;
+            xf.localPosition = Vector3.Lerp(from, bashHome, t / bashBackTime);
+            yield return null;
+        }
+
+        xf.localPosition = bashHome;
+        bashing = false;
     }
 }

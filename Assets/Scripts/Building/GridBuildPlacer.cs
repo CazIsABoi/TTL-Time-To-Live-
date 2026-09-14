@@ -425,8 +425,11 @@ public class GridBuildPlacer : MonoBehaviour
             placed.stackCount = 1;
             placedBuildings.Add(placed);
 
+            var obstacle = instance.GetComponent<Obstacle>() ?? instance.GetComponentInChildren<Obstacle>();
             foreach (var cell in cells)
                 gm.SetWalkable(cell.x, cell.y, false);
+            if (obstacle != null)
+                gm.RegisterObstacleCells(cells, obstacle);
             Obstacle.RaiseChanged();
         }
 
@@ -468,8 +471,11 @@ public class GridBuildPlacer : MonoBehaviour
         if (placed == null) return;
 
         var gm = GridManager.Instance;
+        var obstacle = placed.GetComponent<Obstacle>();
         foreach (var cell in placed.cells)
             gm.SetWalkable(cell.x, cell.y, true);
+        if (placed.cells != null)
+            gm.UnregisterObstacleCells(placed.cells, obstacle);
 
         placedBuildings.Remove(placed);
         Destroy(placed.gameObject);

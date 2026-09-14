@@ -11,6 +11,8 @@ public class GameController : MonoBehaviour
     [SerializeField] private float spawnDelay = 2f;
     [SerializeField] private EnemySpawner spawner;
     [SerializeField] private HandManager handManager;
+    [Tooltip("Reachability treats cells occupied by obstacles this kind can smash as still connected. Loose matches default drifters.")]
+    [SerializeField] private BreakableKind reachabilityBreakKind = BreakableKind.Loose;
     private int aliveEnemies = 0;
     private UIController uiController;
 
@@ -58,7 +60,7 @@ public class GameController : MonoBehaviour
         {
             if (spawnPoint == null) continue;
             Vector2Int start = gm.WorldToCell(spawnPoint.position);
-            if (!gm.IsReachable(start, goal))
+            if (!gm.IsReachable(start, goal, reachabilityBreakKind))
             {
                 reachable = false;
                 break;

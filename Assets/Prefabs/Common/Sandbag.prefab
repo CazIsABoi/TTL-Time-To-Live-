@@ -290,6 +290,8 @@ MonoBehaviour:
   health: 2
   destroyedParticles: {fileID: 5075896821889523823, guid: 706e749c41d430049840123ef48a6c87, type: 3}
   contactDamage: 10
+  kind: 2
+  blockPath: 1
 --- !u!114 &7677033012146881529
 MonoBehaviour:
   m_ObjectHideFlags: 0

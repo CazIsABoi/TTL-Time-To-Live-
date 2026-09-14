@@ -90,7 +90,10 @@ public class ExpandingIsland : MonoBehaviour
     {
         Instance = this;
         SyncGridReference();
-        if (seed == 0) seed = UnityEngine.Random.Range(1, int.MaxValue);
+        if (RunSeed.Instance != null)
+            seed = RunSeed.Instance.Seed;
+        else if (seed == 0)
+            seed = UnityEngine.Random.Range(1, int.MaxValue);
         SyncSizeFromGrid();
         SyncPrefabOffsets();
     }

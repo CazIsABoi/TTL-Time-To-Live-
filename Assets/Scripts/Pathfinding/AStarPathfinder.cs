@@ -12,7 +12,11 @@ public static class AStarPathfinder
         public Node(Vector2Int p) { pos = p; }
     }
 
-    public static List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal, GridManager grid)
+    public static List<Vector2Int> FindPath(
+        Vector2Int start,
+        Vector2Int goal,
+        GridManager grid,
+        BreakableKind canBreak = BreakableKind.None)
     {
         if (grid == null) return null;
         if (start == goal) return new List<Vector2Int> { start };
@@ -40,11 +44,11 @@ public static class AStarPathfinder
             open.Remove(current.pos);
             closed[current.pos] = current;
 
-            foreach (var npos in grid.GetNeighbors(current.pos))
+            foreach (var npos in grid.GetNeighbors(current.pos, canBreak))
             {
                 if (closed.ContainsKey(npos)) continue;
 
-                int tentativeG = current.g + 1; // uniform cost
+                int tentativeG = current.g + grid.GetMoveCost(npos);
 
                 if (!open.TryGetValue(npos, out Node neighbor))
                 {

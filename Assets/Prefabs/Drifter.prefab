@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 8370402886529551473}
   - component: {fileID: -5023252970297932678}
   m_Layer: 6
-  m_Name: Enemy
+  m_Name: Drifter
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
