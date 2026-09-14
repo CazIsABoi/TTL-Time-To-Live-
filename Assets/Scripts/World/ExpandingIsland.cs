@@ -63,7 +63,12 @@ public class ExpandingIsland : MonoBehaviour
     [Header("Expand")]
     public int expandColumns = 2;
 
+    [Header("World setup")]
+    [Tooltip("If true, Start() waits until RunOverlayUI calls BeginGeneration() after size pick.")]
+    public bool waitForWorldSetup = true;
+
     public bool Ready { get; private set; }
+    bool generationStarted;
     public int Columns => grid != null ? Mathf.Max(1, grid.width) : Mathf.Max(1, columns);
     public int Rows => grid != null ? Mathf.Max(1, grid.height) : Mathf.Max(1, rows);
 
@@ -98,8 +103,38 @@ public class ExpandingIsland : MonoBehaviour
         SyncPrefabOffsets();
     }
 
+
+
     void Start()
     {
+        if (waitForWorldSetup)
+            return;
+        BeginGeneration();
+    }
+
+    /// <summary>Apply grid size before generation (world setup).</summary>
+    public void ConfigureSize(int cols, int rows)
+    {
+        SyncGridReference();
+        cols = Mathf.Max(1, cols);
+        rows = Mathf.Max(1, rows);
+        if (grid != null)
+        {
+            grid.SetSize(cols, rows);
+        }
+        else
+        {
+            columns = cols;
+            this.rows = rows;
+        }
+        SyncSizeFromGrid();
+    }
+
+    /// <summary>Start dirt drop / intro. Safe to call once after ConfigureSize.</summary>
+    public void BeginGeneration()
+    {
+        if (generationStarted) return;
+        generationStarted = true;
         SyncGridReference();
         SyncSizeFromGrid();
         ClearGround();
@@ -275,7 +310,7 @@ public class ExpandingIsland : MonoBehaviour
 
         // GrassFloor1 (and similar Blender exports) keep transform at 0,0,0 but the
         // mesh/collider is shifted in local space. Snap the *visual* XZ center to
-        // GridManager.CellToWorld. Core and spawner are not snapped — they use CellToWorld
+        // GridManager.CellToWorld. Core and spawner are not snapped â€” they use CellToWorld
         // as their transform so they stay on the same cells as pathing / GridDebugger.
         rest = SnapVisualCenterToCell(go, rest);
 

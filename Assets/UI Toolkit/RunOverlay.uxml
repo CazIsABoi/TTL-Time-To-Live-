@@ -1,0 +1,61 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="USS/RunOverlay.uss" />
+    <ui:VisualElement name="overlay-root" class="overlay-root">
+
+        <ui:VisualElement name="iris-layer" class="iris-layer" picking-mode="Ignore">
+            <ui:VisualElement name="iris-circle" class="iris-circle open-start" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="world-setup" class="panel-host">
+            <ui:VisualElement class="kit-panel setup-panel">
+                <ui:Label text="WORLD SETUP" class="panel-title" picking-mode="Ignore" />
+                <ui:Label text="Choose starting island size — or set your own." class="panel-sub" picking-mode="Ignore" />
+
+                <ui:VisualElement name="size-row" class="size-row">
+                    <ui:Button text="COMPACT&#10;10 × 5" name="size-compact" class="size-button" />
+                    <ui:Button text="STANDARD&#10;16 × 8" name="size-standard" class="size-button selected" />
+                    <ui:Button text="VAST&#10;24 × 12" name="size-vast" class="size-button" />
+                    <ui:Button text="CUSTOM&#10;YOU PICK" name="size-custom" class="size-button" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="custom-size-row" class="custom-size-row hidden">
+                    <ui:Label text="COLUMNS" class="custom-field-label" picking-mode="Ignore" />
+                    <ui:IntegerField name="custom-cols" value="16" class="custom-int" />
+                    <ui:Label text="ROWS" class="custom-field-label" picking-mode="Ignore" />
+                    <ui:IntegerField name="custom-rows" value="8" class="custom-int" />
+                </ui:VisualElement>
+
+                <ui:Label text="STANDARD  ·  16 × 8" name="size-summary" class="size-summary" picking-mode="Ignore" />
+                <ui:Button text="DEPLOY" name="btn-deploy" class="menu-button primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="pause-overlay" class="pause-overlay hidden">
+            <ui:VisualElement class="kit-panel pause-panel">
+                <ui:Label text="SETTINGS" class="panel-title" picking-mode="Ignore" />
+                <ui:Label text="ESC TO RESUME" class="panel-sub" picking-mode="Ignore" />
+
+                <ui:VisualElement class="settings-row">
+                    <ui:Label text="MASTER" class="settings-label" picking-mode="Ignore" />
+                    <ui:Label text="80%" name="master-value" class="settings-value" picking-mode="Ignore" />
+                    <ui:Slider name="master-slider" low-value="0" high-value="1" value="0.8" class="settings-slider" />
+                </ui:VisualElement>
+                <ui:VisualElement class="settings-row">
+                    <ui:Label text="MUSIC" class="settings-label" picking-mode="Ignore" />
+                    <ui:Label text="70%" name="music-value" class="settings-value" picking-mode="Ignore" />
+                    <ui:Slider name="music-slider" low-value="0" high-value="1" value="0.7" class="settings-slider" />
+                </ui:VisualElement>
+                <ui:VisualElement class="settings-row">
+                    <ui:Label text="SFX" class="settings-label" picking-mode="Ignore" />
+                    <ui:Label text="85%" name="sfx-value" class="settings-value" picking-mode="Ignore" />
+                    <ui:Slider name="sfx-slider" low-value="0" high-value="1" value="0.85" class="settings-slider" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="pause-actions">
+                    <ui:Button text="RESUME" name="btn-resume" class="menu-button primary" />
+                    <ui:Button text="QUIT TO MENU" name="btn-quit-menu" class="menu-button danger" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

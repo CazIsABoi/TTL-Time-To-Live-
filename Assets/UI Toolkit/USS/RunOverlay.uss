@@ -1,0 +1,318 @@
+:root {
+    --green: rgb(154, 241, 78);
+    --green-hover: rgb(103, 238, 51);
+    --kit-bg: rgba(28, 26, 24, 0.92);
+    --kit-bg-solid: rgb(40, 36, 31);
+    --kit-edge: rgb(18, 16, 14);
+    --kit-text: rgb(220, 220, 218);
+    --kit-muted: rgb(150, 148, 142);
+    --kit-danger: rgb(238, 90, 78);
+}
+
+.overlay-root {
+    flex-grow: 1;
+    position: relative;
+}
+
+.iris-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.iris-circle {
+    width: 40px;
+    height: 40px;
+    border-top-left-radius: 9999px;
+    border-top-right-radius: 9999px;
+    border-bottom-right-radius: 9999px;
+    border-bottom-left-radius: 9999px;
+    background-color: rgb(0, 0, 0);
+    transition-property: scale;
+    transition-duration: 0.85s;
+    transition-timing-function: ease-out;
+}
+
+.iris-circle.open-start {
+    scale: 90 90;
+}
+
+.iris-circle.open-done {
+    scale: 0.01 0.01;
+}
+
+.iris-layer.hidden {
+    display: none;
+}
+
+.panel-host {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-host.hidden {
+    display: none;
+}
+
+.kit-panel {
+    background-color: var(--kit-bg);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: var(--kit-edge);
+    border-right-color: var(--kit-edge);
+    border-bottom-color: var(--kit-edge);
+    border-left-color: var(--kit-edge);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 2px;
+    padding: 24px;
+}
+
+.setup-panel {
+    min-width: 640px;
+    max-width: 760px;
+}
+
+.pause-panel {
+    min-width: 420px;
+    max-width: 520px;
+}
+
+.panel-title {
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    color: var(--kit-text);
+    font-size: 26px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 0 rgb(0, 0, 0);
+}
+
+.panel-sub {
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    color: var(--kit-muted);
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+.size-row {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.size-button {
+    flex-grow: 1;
+    height: 96px;
+    margin-right: 10px;
+    padding: 12px;
+    background-color: var(--kit-bg-solid);
+    color: var(--kit-text);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-left-color: rgb(0, 0, 0);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    font-size: 14px;
+    letter-spacing: 1px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.size-button:last-child {
+    margin-right: 0;
+}
+
+.size-button:hover {
+    background-color: rgb(55, 50, 44);
+}
+
+.size-button.selected {
+    background-color: var(--green);
+    color: rgb(20, 24, 18);
+}
+
+.size-summary {
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    color: var(--kit-muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+}
+
+.menu-button {
+    height: 52px;
+    margin-bottom: 10px;
+    padding: 0 16px;
+    background-color: var(--kit-bg-solid);
+    color: var(--kit-text);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-left-color: rgb(0, 0, 0);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    font-size: 18px;
+    letter-spacing: 2px;
+    -unity-text-align: middle-center;
+}
+
+.menu-button.primary {
+    background-color: var(--green);
+    color: rgb(20, 24, 18);
+    height: 56px;
+    letter-spacing: 3px;
+}
+
+.menu-button.primary:hover {
+    background-color: var(--green-hover);
+}
+
+.menu-button.danger:hover {
+    background-color: var(--kit-danger);
+    color: rgb(20, 10, 10);
+}
+
+.pause-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(8, 10, 12, 0.72);
+    align-items: center;
+    justify-content: center;
+}
+
+.pause-overlay.hidden {
+    display: none;
+}
+
+.settings-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    min-height: 36px;
+}
+
+.settings-label {
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    color: var(--kit-muted);
+    font-size: 14px;
+    letter-spacing: 1px;
+    flex-grow: 1;
+}
+
+.settings-value {
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    color: var(--kit-text);
+    font-size: 14px;
+    min-width: 48px;
+    -unity-text-align: middle-right;
+    margin-right: 12px;
+}
+
+.settings-slider {
+    width: 180px;
+    height: 20px;
+    margin: 0;
+}
+
+.pause-actions {
+    flex-direction: column;
+    margin-top: 16px;
+}
+
+.size-button:last-child {
+    margin-right: 0;
+}
+
+.custom-size-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background-color: rgba(18, 16, 14, 0.55);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.custom-size-row.hidden {
+    display: none;
+}
+
+.custom-field-label {
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    color: var(--kit-muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-right: 8px;
+}
+
+.custom-int {
+    width: 88px;
+    height: 34px;
+    margin-right: 18px;
+    color: rgb(20, 18, 16);
+}
+
+/* IntegerField: paint the actual input so digits aren't white-on-dark */
+.custom-int .unity-base-field__input,
+.custom-int .unity-base-text-field__input,
+.custom-int .unity-integer-field__input {
+    background-color: rgb(236, 232, 224);
+    color: rgb(20, 18, 16);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-left-color: rgb(0, 0, 0);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    -unity-text-align: middle-left;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.custom-int .unity-base-text-field__input:focus,
+.custom-int .unity-integer-field__input:focus {
+    background-color: rgb(255, 252, 245);
+    color: rgb(20, 18, 16);
+}

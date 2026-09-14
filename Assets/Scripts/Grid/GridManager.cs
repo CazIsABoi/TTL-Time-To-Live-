@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,6 +45,14 @@ public class GridManager : MonoBehaviour
 
     public void RebuildGrid()
     {
+        BuildGrid();
+    }
+
+    /// <summary>Set absolute size and rebuild (for world setup before play).</summary>
+    public void SetSize(int newWidth, int newHeight)
+    {
+        width = Mathf.Max(1, newWidth);
+        height = Mathf.Max(1, newHeight);
         BuildGrid();
     }
 

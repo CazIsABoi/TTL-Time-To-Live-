@@ -2,49 +2,19 @@
     <Style src="USS/MainMenu.uss" />
     <ui:VisualElement name="menu-root" class="menu-root">
         <ui:VisualElement name="menu-left" class="menu-left" picking-mode="Ignore">
-            <ui:Label text="FIELD KIT // SURVIVAL RUN" name="brand-kicker" class="brand-kicker" picking-mode="Ignore" />
             <ui:Label text="TIME TO LIVE" name="brand-title" class="brand-title" picking-mode="Ignore" />
             <ui:Label text="Fortify the island. Bend the path. Hold the core." name="brand-subtitle" class="brand-subtitle" picking-mode="Ignore" />
 
             <ui:VisualElement name="menu-panel" class="menu-panel">
                 <ui:Button text="PLAY" name="btn-play" class="menu-button primary" />
-                <ui:Button text="SETTINGS" name="btn-settings" class="menu-button" />
                 <ui:Button text="QUIT" name="btn-quit" class="menu-button danger" />
-                <ui:Label text="ENTER TO DEPLOY  ·  ESC FOR SETTINGS" name="menu-hint" class="menu-hint" picking-mode="Ignore" />
+                <ui:Label text="ENTER TO DEPLOY" name="menu-hint" class="menu-hint" picking-mode="Ignore" />
             </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement name="menu-right" class="menu-right" picking-mode="Ignore">
             <ui:Label text="DWELL  00:00.0" name="idle-label" class="idle-label" picking-mode="Ignore" />
             <ui:Label text="v0.1  ·  TIME TO LIVE" name="version-label" class="version-label" picking-mode="Ignore" />
-        </ui:VisualElement>
-
-        <ui:VisualElement name="settings-overlay" class="settings-overlay hidden">
-            <ui:VisualElement name="settings-panel" class="settings-panel">
-                <ui:Label text="SETTINGS" name="settings-title" class="settings-title" picking-mode="Ignore" />
-
-                <ui:VisualElement class="settings-row">
-                    <ui:Label text="MASTER VOLUME" class="settings-label" picking-mode="Ignore" />
-                    <ui:Label text="80%" name="master-value" class="settings-value" picking-mode="Ignore" />
-                    <ui:Slider name="master-slider" low-value="0" high-value="1" value="0.8" class="settings-slider" />
-                </ui:VisualElement>
-
-                <ui:VisualElement class="settings-row">
-                    <ui:Label text="MUSIC" class="settings-label" picking-mode="Ignore" />
-                    <ui:Label text="70%" name="music-value" class="settings-value" picking-mode="Ignore" />
-                    <ui:Slider name="music-slider" low-value="0" high-value="1" value="0.7" class="settings-slider" />
-                </ui:VisualElement>
-
-                <ui:VisualElement class="settings-row">
-                    <ui:Label text="SFX" class="settings-label" picking-mode="Ignore" />
-                    <ui:Label text="85%" name="sfx-value" class="settings-value" picking-mode="Ignore" />
-                    <ui:Slider name="sfx-slider" low-value="0" high-value="1" value="0.85" class="settings-slider" />
-                </ui:VisualElement>
-
-                <ui:VisualElement class="settings-actions">
-                    <ui:Button text="CLOSE" name="btn-settings-close" class="menu-button" />
-                </ui:VisualElement>
-            </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement name="play-iris" class="play-iris hidden" picking-mode="Ignore">
