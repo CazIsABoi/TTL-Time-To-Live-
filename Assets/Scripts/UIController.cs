@@ -11,8 +11,8 @@ public class UIController : MonoBehaviour
     VisualElement root;
     VisualElement waveButton;
     VisualElement hand;
-    VisualElement deckTop;
-    VisualElement discardTop;
+    VisualElement deck;
+    VisualElement discard;
 
     [SerializeField] OrbitCamera orbitCamera;
 
@@ -46,10 +46,10 @@ public class UIController : MonoBehaviour
         waveLabel = root.Q<Label>("wave-label");
         waveButton = root.Q(className: "wave-button");
         hand = root.Q(className: "Hand");
-        deckTop = root.Q("deck-top");
-        discardTop = root.Q("discard-top");
+        deck = root.Q("deck");
+        discard = root.Q("discard");
 
-        var healthLabel = root.Q("health-label"); // the one in your screenshot
+        var healthLabel = root.Q("health-label");
 
         Apply(100, 100);
         HideHudImmediate();
@@ -64,8 +64,9 @@ public class UIController : MonoBehaviour
         Park(waveLabel, new Translate(-240, 0));
         Park(waveButton, new Translate(0, -160));
         Park(hand, new Translate(0, 160));
-        Park(deckTop, new Translate(-240, 160));
-        Park(discardTop, new Translate(240, 160));
+        // Whole piles (backs + captions + tops) move together
+        Park(deck, new Translate(-240, 160));
+        Park(discard, new Translate(240, 160));
         root?.Query(className: "hud-panel").ForEach(e => Park(e, Guess(e)));
     }
 
@@ -115,12 +116,12 @@ public class UIController : MonoBehaviour
 
     public void SetScore(int score)
     {
-        if (scoreLabel != null) scoreLabel.text = $"Score: {score}";
+        if (scoreLabel != null) scoreLabel.text = $"SCORE {score}";
     }
 
     public void SetWave(int wave)
     {
-        if (waveLabel != null) waveLabel.text = $"Wave: {wave}";
+        if (waveLabel != null) waveLabel.text = $"WAVE {wave}";
     }
 
     void Apply(int current, int max)

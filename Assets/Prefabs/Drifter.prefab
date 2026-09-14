@@ -184,6 +184,7 @@ MonoBehaviour:
   bashBackTime: 0.12
   visual: {fileID: 0}
   spawnGroundOffset: 0
+  deathClip: {fileID: 8300000, guid: 35a4bd32766c3b441a3c4ef741602106, type: 3}
 --- !u!114 &8370402886529551473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,6 +203,9 @@ MonoBehaviour:
   tickInterval: 0.5
   cellsPerMove: 1
   arriveThreshold: 0.05
+  blockPatience: 0.45
+  forceCooldown: 0.12
+  followDistance: 0.75
 --- !u!114 &-5023252970297932678
 MonoBehaviour:
   m_ObjectHideFlags: 0

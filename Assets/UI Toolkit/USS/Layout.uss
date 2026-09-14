@@ -1,8 +1,218 @@
+/* ===== Field kit — top HUD ===== */
 :root {
     --green: rgb(154, 241, 78);
     --green-hover: rgb(103, 238, 51);
+    --kit-bg: rgba(28, 26, 24, 0.82);
+    --kit-bg-solid: rgb(40, 36, 31);
+    --kit-edge: rgb(18, 16, 14);
+    --kit-text: rgb(210, 210, 210);
+    --kit-muted: rgb(150, 148, 142);
+    --kit-danger: rgb(238, 90, 78);
+    --kit-warn: rgb(255, 176, 84);
+    --kit-radius: 6px;
+    --kit-border: 2px;
+}
+/* Full-width top strip: left cluster | center wave | right cluster */
+.top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 96px;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px 20px 0 20px;
+}
+.top-left,
+.top-right,
+.top-center {
+    flex-direction: column;
+}
+.top-left {
+    align-items: flex-start;
+    min-width: 280px;
+    max-width: 42%;
+    flex-grow: 0;
+}
+.top-center {
+    align-items: center;
+    justify-content: flex-start;
+    flex-grow: 1;
+    padding-top: 4px;
+}
+.top-right {
+    align-items: flex-end;
+    min-width: 200px;
+    flex-grow: 0;
+}
+/* Shared stamped panel */
+.kit-panel {
+    background-color: var(--kit-bg);
+    border-top-width: var(--kit-border);
+    border-right-width: var(--kit-border);
+    border-bottom-width: var(--kit-border);
+    border-left-width: var(--kit-border);
+    border-top-color: var(--kit-edge);
+    border-right-color: var(--kit-edge);
+    border-bottom-color: var(--kit-edge);
+    border-left-color: var(--kit-edge);
+    border-top-left-radius: var(--kit-radius);
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: var(--kit-radius);
+    border-bottom-left-radius: 2px;
+    padding: 8px 12px;
+}
+.kit-label {
+    color: var(--kit-text);
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf");
+    text-shadow: 2px 2px 0 rgb(0, 0, 0);
+    margin: 0;
+    padding: 0;
+}
+.kit-label-muted {
+    color: var(--kit-muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf");
+    margin-bottom: 4px;
+}
+/* --- Core HP (top-left) --- */
+.core-block {
+    min-width: 260px;
+    width: 320px;
+    max-width: 420px;
+}
+#health-label {
+    font-size: 14px;
+    color: var(--kit-muted);
+    letter-spacing: 1px;
+    height: auto;
+    width: auto;
+    margin-bottom: 4px;
+    -unity-text-auto-size: none;
+}
+#health-bar {
+    height: 22px;
+    width: 100%;
+    min-width: 200px;
+    max-width: none;
+    margin: 0;
+}
+.unity-progress-bar__background {
+    background-color: rgb(46, 48, 58);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+.unity-progress-bar__progress {
+    background-color: var(--green);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+/* Low HP flash — toggle class from code when health <= 25% */
+#health-bar.critical .unity-progress-bar__progress {
+    background-color: var(--kit-danger);
+}
+/* --- Score / wave (top-right) --- */
+.meta-block {
+    align-items: flex-end;
+}
+#score-label,
+#wave-label {
+    height: auto;
+    width: auto;
+    min-width: auto;
+    font-size: 22px;
+    -unity-text-auto-size: none;
+    -unity-text-align: middle-right;
+    margin: 0;
+    padding: 0;
+}
+#wave-label {
+    font-size: 16px;
+    color: var(--kit-muted);
+    margin-top: 2px;
+}
+/* --- Wave button (center) --- */
+.wave-button {
+    position: relative;
+    width: 280px;
+    height: 64px;
+    min-width: 200px;
+    min-height: 48px;
+    margin: 0;
+    background-color: var(--green);
+    color: rgb(20, 24, 18);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-left-color: rgb(0, 0, 0);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf");
+    font-size: 22px;
+    -unity-text-align: middle-center;
+    text-shadow: none;
+    transition-property: translate, opacity, background-color, scale;
+    transition-duration: 0.45s, 0.45s, 0.12s, 0.12s;
+}
+.wave-button:hover {
+    background-color: var(--green-hover);
+    scale: 1.03 1.03;
+}
+.wave-button:active {
+    background-color: rgb(80, 200, 40);
+    scale: 0.98 0.98;
+}
+.wave-button.disabled {
+    background-color: rgb(90, 92, 88);
+    color: rgb(40, 40, 40);
+    opacity: 0.55;
 }
 
+.wave-button.exit-down {
+    translate: 0 160px;
+    opacity: 0;
+}
+
+.wave-button.exit-up {
+    translate: 0 -160px;
+    opacity: 0;
+    transition-timing-function: ease-in;
+}
+/* Impossible banner — slim strip under the button */
+#impossible-label {
+    display: none;
+    width: auto;
+    max-width: 360px;
+    height: auto;
+    margin-top: 8px;
+    padding: 6px 12px;
+    background-color: rgba(60, 20, 18, 0.9);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: var(--kit-danger);
+    border-right-color: var(--kit-danger);
+    border-bottom-color: var(--kit-danger);
+    border-left-color: var(--kit-danger);
+    color: rgb(255, 180, 180);
+    font-size: 14px;
+    -unity-text-auto-size: none;
+    -unity-text-align: middle-center;
+    letter-spacing: 0.5px;
+}
 .hud-panel {
     translate: 0 0;
     opacity: 1;
@@ -36,52 +246,6 @@
 
 .hud-panel.exit-left {
     translate: -240px 0;
-    opacity: 0;
-    transition-timing-function: ease-in;
-}
-
-.unity-progress-bar__progress {
-    -unity-background-image-tint-color: rgb(238, 51, 51);
-    background-color: rgb(103, 238, 51);
-}
-
-.unity-progress-bar__background {
-    -unity-background-image-tint-color: rgb(57, 62, 75);
-    background-color: rgb(76, 76, 96);
-}
-
-.wave-button {
-    position: absolute;
-    translate: 0 0;
-    scale: 1;
-    opacity: 1;
-    background-color: var(--green);
-    transition-property: translate, opacity;
-    transition-duration: 0.45s;
-    transition-timing-function: ease-in;
-}
-
-.wave-button.disabled {
-    transition-property: opacity;
-    transition-duration: 0.15s;
-    transition-timing-function: ease-out;
-}
-
-.wave-button:hover {
-    background-color: var(--green-hover);
-}
-
-.wave-button:active {
-    background-color: rgb(80, 200, 40);
-}
-
-.wave-button.exit-down {
-    translate: 0 160px;
-    opacity: 0;
-}
-
-.wave-button.exit-up {
-    translate: 0 -160px;
     opacity: 0;
     transition-timing-function: ease-in;
 }
@@ -181,10 +345,109 @@
     background-color: rgb(254, 176, 84);
 }
 
+/* ===== Bottom row — piles + hand ===== */
+.bottom-row {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    min-height: 220px;
+    padding: 0 20px 12px 20px;
+}
+
+.pile {
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 140px;
+    margin-bottom: 4px;
+}
+
+.pile-stack {
+    width: 140px;
+    height: 190px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.pile-back {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--kit-bg-solid);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 30px;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.pile-top {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background-color: var(--kit-bg-solid);
+    color: var(--kit-text);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 30px;
+    -unity-text-align: middle-center;
+    -unity-text-auto-size: best-fit 10px 100px;
+    -unity-background-scale-mode: stretch-to-fill;
+    font-size: 36px;
+    text-shadow: 2px 2px 0 rgb(0, 0, 0);
+}
+
+#discard-top {
+    opacity: 0.72;
+}
+
+.pile-caption {
+    margin-top: 6px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--kit-muted);
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf");
+    -unity-text-align: middle-center;
+    text-shadow: 1px 1px 0 rgb(0, 0, 0);
+}
+
 .Hand {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    height: 190px;
+    min-height: 190px;
+    margin-bottom: 16px;
+    padding: 0 8px;
+}
+
+.card-slot {
+    width: 140px;
+    height: 190px;
+    min-width: 140px;
+    min-height: 190px;
+    margin-right: 8px;
+    transform-origin: bottom;
+    position: relative;
 }
 
 .card {
+    align-self: flex-end;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    flex-shrink: 0;
+    margin: 0;
+    background-color: rgb(43, 39, 34);
     transition-property: translate, scale, opacity;
     transition-duration: 0.35s;
     transition-timing-function: ease-out;
@@ -202,25 +465,61 @@
 
 .card:hover {
     translate: 0 -10px;
-    scale: 1.03 1.03 1.03;
+    scale: 1.03 1.03;
     transition-property: translate, scale;
-    transition-timing-function: ease-out, ease-out;
-    transition-duration: 0.12s, 0.12s;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
 }
 
 .card.selected {
     translate: 0 -28px;
-    scale: 1.08 1.08 1.08;
+    scale: 1.08 1.08;
     border-top-width: 4px;
     border-right-width: 4px;
     border-bottom-width: 4px;
     border-left-width: 4px;
-    transition-property: translate, scale;
-    transition-duration: 0.12s, 0.12s;
-    transition-timing-function: ease-out, ease-out;
+}
+
+.card-banner {
+    flex-grow: 0;
+    flex-shrink: 0;
+    height: 24px;
+    width: 100%;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 30px;
+}
+
+.card-art {
+    flex-grow: 1;
+    background-color: rgba(30, 27, 23, 0.35);
+}
+
+.card-title {
+    height: 28px;
+    font-size: 16px;
+    color: rgb(202, 202, 202);
+    -unity-text-align: middle-center;
+    -unity-text-auto-size: best-fit 5px 20px;
 }
 
 .amount-label {
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 4px;
+    background-color: rgba(0, 0, 0, 0.75);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    color: var(--kit-text);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    -unity-text-auto-size: none;
 }
 
 .amount-label.amount-hidden {

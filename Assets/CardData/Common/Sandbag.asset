@@ -20,10 +20,11 @@ MonoBehaviour:
   sizeY: 1
   waveLifespan: 8
   amount: 4
-  copiesInDeck: 20
+  copiesInDeck: 2
   category: 0
   unlockScore: 0
   prefab: {fileID: 6067709092033563481, guid: 873474b6286936a4f8bfc3c7c5ecc786, type: 3}
+  yOffset: 0
   canRotate: 1
   stackable: 1
   maxStack: 2
