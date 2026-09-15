@@ -346,7 +346,20 @@ public class RunOverlayUI : MonoBehaviour
             Debug.LogError("RunOverlayUI: no ExpandingIsland in scene.");
 
         setupDone = true;
-        if (worldSetup != null) worldSetup.AddToClassList("hidden");
+        if (worldSetup != null)
+        {
+            worldSetup.AddToClassList("hidden");
+            worldSetup.pickingMode = PickingMode.Ignore;
+        }
+        // Hard-hide the whole overlay tree so this PanelRenderer cannot steal HUD clicks.
+        if (root != null)
+        {
+            root.pickingMode = PickingMode.Ignore;
+            root.style.display = DisplayStyle.None;
+        }
+        // Fully stop this panel from participating in UI picking.
+        if (panelRenderer != null)
+            panelRenderer.enabled = false;
     }
 
     void TogglePause() => SetPaused(!paused);
@@ -364,8 +377,31 @@ public class RunOverlayUI : MonoBehaviour
     void SetPauseVisible(bool visible)
     {
         if (pauseOverlay == null) return;
-        if (visible) pauseOverlay.RemoveFromClassList("hidden");
-        else pauseOverlay.AddToClassList("hidden");
+        if (visible)
+        {
+            if (panelRenderer != null)
+                panelRenderer.enabled = true;
+            if (root != null)
+            {
+                root.style.display = DisplayStyle.Flex;
+                root.pickingMode = PickingMode.Ignore;
+            }
+            pauseOverlay.RemoveFromClassList("hidden");
+            pauseOverlay.pickingMode = PickingMode.Position;
+        }
+        else
+        {
+            pauseOverlay.AddToClassList("hidden");
+            pauseOverlay.pickingMode = PickingMode.Ignore;
+            // Back to fully inert so cards/HUD receive clicks again.
+            if (root != null && setupDone)
+            {
+                root.style.display = DisplayStyle.None;
+                root.pickingMode = PickingMode.Ignore;
+            }
+            if (panelRenderer != null && setupDone)
+                panelRenderer.enabled = false;
+        }
     }
 
     void QuitToMenu()

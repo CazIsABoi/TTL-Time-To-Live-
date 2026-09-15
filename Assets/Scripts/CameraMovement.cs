@@ -22,6 +22,9 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField] float introPitchEnd = 45f;
     [SerializeField] float introOrthoStart = 18f;
     [SerializeField] float introOrthoEnd = 12f;
+    [Tooltip("If true, settle zoom matches the board fit instead of slamming to Intro Ortho End (fixes abrupt zoom on large worlds).")]
+    [SerializeField] bool settleOrthoToBoardFit = true;
+    [SerializeField] float settleFitScale = 0.92f;
     [Tooltip("Degrees per second during the spawn. 35–50 is a slow orbit.")]
     [SerializeField] float introSpinSpeed = 40f;
     [Tooltip("Keep orbiting this long after the last tile lands, then settle.")]
@@ -236,6 +239,13 @@ public class OrbitCamera : MonoBehaviour
         float startYaw = yaw;
         float startPitch = pitch;
         float startSize = orthoSize; // whatever the fit settled on — no snap
+        float endSize = introOrthoEnd;
+        if (settleOrthoToBoardFit && TryGetBoardBounds(out Bounds settleBoard))
+        {
+            settleBoard.Encapsulate(settleBoard.center + Vector3.up * 24f);
+            endSize = Mathf.Max(introOrthoEnd, SizeToFitBoard(settleBoard) * settleFitScale);
+            endSize = Mathf.Clamp(endSize, minOrthoSize, maxOrthoSize);
+        }
         float t = 0f;
         while (t < introSettleSeconds)
         {
@@ -243,14 +253,14 @@ public class OrbitCamera : MonoBehaviour
             float k = introCurve.Evaluate(Mathf.Clamp01(t / introSettleSeconds));
             yaw = Mathf.LerpAngle(startYaw, introYawEnd, k);
             pitch = Mathf.Lerp(startPitch, introPitchEnd, k);
-            orthoSize = Mathf.Lerp(startSize, introOrthoEnd, k);
+            orthoSize = Mathf.Lerp(startSize, endSize, k);
             FrameBoardForIntro(lockOrtho: true); // pivot only, do not touch size
             yield return null;
         }
 
         yaw = introYawEnd;
         pitch = introPitchEnd;
-        orthoSize = introOrthoEnd;
+        orthoSize = endSize;
         introPlaying = false;
         OnIntroFinished?.Invoke();
     }

@@ -17,15 +17,21 @@ public class BgmLayers : MonoBehaviour
 
     Coroutine fadeCo;
 
+    float Scaled(float authored) => authored * GameSettings.MusicScale;
+
     void Awake()
     {
+        GameSettings.EnsureExists();
         Setup(build);
         Setup(wave);
+        GameSettings.Instance?.RegisterMusic(build);
+        GameSettings.Instance?.RegisterMusic(wave);
+
         if (wave != null && waveClip != null)
         {
             wave.clip = waveClip;
             wave.volume = 0f;
-            wave.Play(); 
+            wave.Play();
         }
         StartIntro();
     }
@@ -45,7 +51,7 @@ public class BgmLayers : MonoBehaviour
         StopFade();
         if (build == null || introClip == null) return;
         build.clip = introClip;
-        build.volume = introVol;
+        build.volume = Scaled(introVol);
         if (!build.isPlaying) build.Play();
         if (wave != null) wave.volume = 0f;
     }
@@ -53,11 +59,10 @@ public class BgmLayers : MonoBehaviour
     public void ToBuild()
     {
         if (build == null) return;
-        // Coming from intro on the same source: swap clip with a short dip, then ensure wave is down
         if (build.clip == introClip && buildClip != null)
             StartCoroutine(SwapBuildClipThenFocus());
         else
-            Focus(build, buildVol);
+            Focus(build, Scaled(buildVol));
     }
 
     public void ToWave()
@@ -65,7 +70,20 @@ public class BgmLayers : MonoBehaviour
         if (wave == null) return;
         if (wave.clip != waveClip && waveClip != null) wave.clip = waveClip;
         if (!wave.isPlaying) wave.Play();
-        Focus(wave, waveVol);
+        Focus(wave, Scaled(waveVol));
+    }
+
+    /// <summary>Re-apply volumes after GameSettings music slider changes.</summary>
+    public void RefreshVolumesFromSettings()
+    {
+        if (fadeCo != null) return;
+        if (wave != null && wave.volume > 0.01f)
+            wave.volume = Scaled(waveVol);
+        else if (build != null && build.isPlaying)
+        {
+            bool intro = build.clip == introClip;
+            build.volume = Scaled(intro ? introVol : buildVol);
+        }
     }
 
     void Focus(AudioSource target, float vol)
@@ -82,7 +100,6 @@ public class BgmLayers : MonoBehaviour
 
     IEnumerator SwapBuildClipThenFocus()
     {
-        // brief fade out → swap → fade focus to build
         float start = build.volume;
         float t = 0f;
         float half = fadeTime * 0.35f;
@@ -95,7 +112,7 @@ public class BgmLayers : MonoBehaviour
         }
         build.clip = buildClip;
         if (!build.isPlaying) build.Play();
-        Focus(build, buildVol);
+        Focus(build, Scaled(buildVol));
     }
 
     IEnumerator FadeFocus(AudioSource target, float targetVol)

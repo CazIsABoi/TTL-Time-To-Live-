@@ -1,0 +1,15 @@
+TIME TO LIVE — Patch Notes
+
+v0.1
+• Main menu with Play / Settings / Quit
+• Shared run seed for hand, world, and enemies
+• Field-kit HUD (UI Toolkit)
+• World setup size picker (including custom)
+• Layered BGM (intro / build / wave)
+• Breaker-only wall smash
+• Grid agent soft-wait + force-through crowding
+
+Coming soon
+• Game over + meta unlocks
+• More enemy types
+• Trailer / cinematic slot (assign VideoClip on Main Menu Controller)

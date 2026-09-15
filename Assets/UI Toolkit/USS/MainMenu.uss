@@ -1,4 +1,4 @@
-/* Field kit — Main Menu */
+/* Field kit — Main Menu (video backdrop) */
 :root {
     --green: rgb(154, 241, 78);
     --green-hover: rgb(103, 238, 51);
@@ -9,106 +9,91 @@
     --kit-text: rgb(220, 220, 218);
     --kit-muted: rgb(150, 148, 142);
     --kit-danger: rgb(238, 90, 78);
-    --kit-danger-hover: rgb(255, 120, 100);
 }
 
 .menu-root {
+    position: relative;
     flex-grow: 1;
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: flex-start;
-    background-color: rgba(12, 14, 18, 0.35);
-    padding: 48px 56px;
+    min-width: 0;
+    min-height: 0;
 }
 
-.menu-left {
-    flex-grow: 1;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    max-width: 520px;
-    padding-right: 40px;
-}
-
-.menu-right {
-    flex-grow: 1;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-end;
-    padding-bottom: 8px;
-}
-
-.idle-label {
-    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
-    color: rgb(120, 122, 128);
-    font-size: 13px;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-    text-shadow: 1px 1px 0 rgb(0, 0, 0);
-}
-
-/* Black circle iris wipe on Play */
-.play-iris {
+.video-bg {
     position: absolute;
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    background-color: rgb(20, 28, 24);
+    -unity-background-scale-mode: scale-and-crop;
 }
 
-.play-iris.hidden {
-    display: none;
+.video-veil {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(8, 12, 10, 0.42);
 }
 
-.iris-circle {
-    width: 40px;
-    height: 40px;
-    border-top-left-radius: 9999px;
-    border-top-right-radius: 9999px;
-    border-bottom-right-radius: 9999px;
-    border-bottom-left-radius: 9999px;
-    background-color: rgb(0, 0, 0);
-    scale: 0.05 0.05;
-    transition-property: scale;
-    transition-duration: 0.9s;
-    transition-timing-function: ease-in;
+.menu-chrome {
+    position: relative;
+    flex-grow: 1;
+    flex-direction: column;
+    padding: 36px 40px 48px 40px;
+    min-height: 0;
 }
 
-.iris-circle.expand {
-    scale: 90 90;
-}
-
-
-.brand-kicker {
-    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
-    color: var(--kit-muted);
-    font-size: 14px;
-    letter-spacing: 4px;
-    margin-bottom: 12px;
-    text-shadow: 2px 2px 0 rgb(0, 0, 0);
+.header {
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 28px;
 }
 
 .brand-title {
     -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
     color: var(--kit-text);
     font-size: 56px;
-    letter-spacing: 1px;
-    white-space: normal;
-    margin-bottom: 8px;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
     text-shadow: 3px 3px 0 rgb(0, 0, 0);
-    -unity-text-align: middle-left;
+}
+
+.live-timer {
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    color: var(--green);
+    font-size: 36px;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0 rgb(0, 0, 0);
 }
 
 .brand-subtitle {
     -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
     color: var(--kit-muted);
-    font-size: 16px;
+    font-size: 14px;
     letter-spacing: 1px;
-    margin-bottom: 36px;
+    white-space: normal;
     text-shadow: 2px 2px 0 rgb(0, 0, 0);
+}
+
+.body-row {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 0;
+    min-width: 0;
+}
+
+.menu-left {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 320px;
+    justify-content: flex-end;
+    padding-right: 28px;
+    padding-bottom: 8px;
 }
 
 .menu-panel {
@@ -126,8 +111,104 @@
     border-bottom-right-radius: 6px;
     border-bottom-left-radius: 2px;
     padding: 20px;
+    width: 100%;
+}
+
+.side-box {
+    flex-grow: 1;
+    flex-shrink: 1;
     min-width: 280px;
-    max-width: 340px;
+    max-width: 560px;
+    margin-left: auto;
+    flex-direction: column;
+    background-color: var(--kit-bg);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: var(--kit-edge);
+    border-right-color: var(--kit-edge);
+    border-bottom-color: var(--kit-edge);
+    border-left-color: var(--kit-edge);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 2px;
+    padding: 14px;
+    min-height: 0;
+}
+
+.stage-tabs {
+    flex-direction: row;
+    flex-shrink: 0;
+    margin-bottom: 12px;
+}
+
+.stage-tab {
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    height: 36px;
+    margin-right: 8px;
+    padding: 0 16px;
+    background-color: var(--kit-bg-solid);
+    color: var(--kit-muted);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-left-color: rgb(0, 0, 0);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+.stage-tab:hover {
+    color: var(--kit-text);
+}
+
+.stage-tab.selected {
+    background-color: var(--green);
+    color: rgb(20, 24, 18);
+}
+
+.stage-body {
+    position: relative;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.stage-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+    min-height: 0;
+    padding: 4px;
+}
+
+.stage-panel.hidden {
+    display: none;
+}
+
+.notes-scroll {
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.notes-body {
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    color: var(--kit-text);
+    font-size: 14px;
+    white-space: normal;
+    letter-spacing: 0.5px;
+    padding: 4px;
 }
 
 .menu-button {
@@ -152,19 +233,8 @@
     font-size: 18px;
     letter-spacing: 2px;
     -unity-text-align: middle-left;
-    transition-property: background-color, translate, scale;
-    transition-duration: 0.12s;
 }
-
-.menu-button:hover {
-    background-color: rgb(55, 50, 44);
-    translate: 4px 0;
-}
-
-.menu-button:active {
-    scale: 0.98 0.98;
-}
-
+.menu-button:hover { background-color: rgb(55, 50, 44); }
 .menu-button.primary {
     background-color: var(--green);
     color: rgb(20, 24, 18);
@@ -173,80 +243,26 @@
     height: 58px;
     font-size: 20px;
 }
-
-.menu-button.primary:hover {
-    background-color: var(--green-hover);
-    translate: 0 0;
-}
-
-.menu-button.primary:active {
-    background-color: var(--green-press);
-}
-
-.menu-button.danger:hover {
-    background-color: var(--kit-danger);
-    color: rgb(20, 10, 10);
-}
+.menu-button.primary:hover { background-color: var(--green-hover); }
+.menu-button.danger:hover { background-color: var(--kit-danger); color: rgb(20, 10, 10); }
 
 .menu-hint {
     -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
     color: var(--kit-muted);
     font-size: 12px;
     letter-spacing: 1px;
-    margin-top: 8px;
-    margin-bottom: 0;
+    margin-top: 4px;
 }
 
 .version-label {
+    position: absolute;
+    right: 16px;
+    bottom: 12px;
     -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
-    color: rgb(110, 112, 118);
+    color: rgb(160, 165, 158);
     font-size: 12px;
     letter-spacing: 1px;
     text-shadow: 1px 1px 0 rgb(0, 0, 0);
-}
-
-/* Settings overlay */
-.settings-overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(8, 10, 12, 0.72);
-    align-items: center;
-    justify-content: center;
-}
-
-.settings-overlay.hidden {
-    display: none;
-}
-
-.settings-panel {
-    min-width: 420px;
-    max-width: 520px;
-    background-color: var(--kit-bg);
-    border-top-width: 2px;
-    border-right-width: 2px;
-    border-bottom-width: 2px;
-    border-left-width: 2px;
-    border-top-color: var(--kit-edge);
-    border-right-color: var(--kit-edge);
-    border-bottom-color: var(--kit-edge);
-    border-left-color: var(--kit-edge);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 6px;
-    border-bottom-left-radius: 2px;
-    padding: 24px;
-}
-
-.settings-title {
-    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
-    color: var(--kit-text);
-    font-size: 22px;
-    letter-spacing: 3px;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 0 rgb(0, 0, 0);
 }
 
 .settings-row {
@@ -256,7 +272,6 @@
     margin-bottom: 14px;
     min-height: 36px;
 }
-
 .settings-label {
     -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
     color: var(--kit-muted);
@@ -264,7 +279,6 @@
     letter-spacing: 1px;
     flex-grow: 1;
 }
-
 .settings-value {
     -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
     color: var(--kit-text);
@@ -273,22 +287,27 @@
     -unity-text-align: middle-right;
     margin-right: 12px;
 }
+.settings-slider { width: 160px; height: 20px; margin: 0; }
 
-.settings-slider {
-    width: 180px;
-    height: 20px;
-    margin: 0;
+.play-iris {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
-
-.settings-actions {
-    flex-direction: row;
-    justify-content: flex-end;
-    margin-top: 18px;
+.play-iris.hidden { display: none; }
+.iris-circle {
+    width: 40px;
+    height: 40px;
+    border-top-left-radius: 9999px;
+    border-top-right-radius: 9999px;
+    border-bottom-right-radius: 9999px;
+    border-bottom-left-radius: 9999px;
+    background-color: rgb(0, 0, 0);
+    scale: 0.05 0.05;
+    transition-property: scale;
+    transition-duration: 0.9s;
+    transition-timing-function: ease-in;
 }
-
-.settings-actions .menu-button {
-    min-width: 120px;
-    margin-bottom: 0;
-    margin-left: 10px;
-    -unity-text-align: middle-center;
-}
+.iris-circle.expand { scale: 90 90; }

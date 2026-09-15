@@ -160,7 +160,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   health: 20
   attackDamage: 1
-  attackRange: 1.6
   attackInterval: 0.6
   repathInterval: 0.4
   exitWeight: 1.2
@@ -184,6 +183,7 @@ MonoBehaviour:
   bashBackTime: 0.12
   visual: {fileID: 0}
   spawnGroundOffset: 0
+  audioSource: {fileID: 6181652894169448097, guid: 0f8862fd357ce0c48a38e74d7b3978a6, type: 3}
   deathClip: {fileID: 8300000, guid: 35a4bd32766c3b441a3c4ef741602106, type: 3}
 --- !u!114 &8370402886529551473
 MonoBehaviour:

@@ -198,6 +198,7 @@ public class HandManager : MonoBehaviour
 
             if (cardButtons[i] == null) continue;
             int index = i;
+            cardButtons[i].RegisterCallback<ClickEvent>(_ => OnCardClicked(index));
             cardButtons[i].RegisterCallback<PointerEnterEvent>(_ => OnCardPointerEnter(index));
             cardButtons[i].RegisterCallback<PointerLeaveEvent>(_ => OnCardPointerLeave(index));
         }

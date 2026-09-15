@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Game-wide audio (and later) settings. Survives menu → game scene.
+/// Game-wide settings (DDOL). Menu can change prefs without scene audio sources;
+/// main-scene BGM/SFX pick them up via multipliers / registration.
 /// </summary>
 public class GameSettings : MonoBehaviour
 {
@@ -15,13 +17,31 @@ public class GameSettings : MonoBehaviour
     [SerializeField] float music = 0.7f;
     [SerializeField] float sfx = 0.85f;
 
-    [Tooltip("Optional music sources to drive from the Music slider (BGM etc.).")]
-    [SerializeField] AudioSource[] musicSources;
-    [SerializeField] AudioSource[] sfxSources;
+    readonly List<AudioSource> musicSources = new();
+    readonly List<AudioSource> sfxSources = new();
 
     public float Master => master;
     public float Music => music;
     public float Sfx => sfx;
+
+    /// <summary>Multiply a authored BGM volume by the Music slider (Master is AudioListener).</summary>
+    public static float MusicScale
+    {
+        get
+        {
+            var g = Instance != null ? Instance : EnsureExists();
+            return g != null ? Mathf.Clamp01(g.music) : 1f;
+        }
+    }
+
+    public static float SfxScale
+    {
+        get
+        {
+            var g = Instance != null ? Instance : EnsureExists();
+            return g != null ? Mathf.Clamp01(g.sfx) : 1f;
+        }
+    }
 
     public static GameSettings EnsureExists()
     {
@@ -72,12 +92,27 @@ public class GameSettings : MonoBehaviour
         music = Mathf.Clamp01(v);
         PlayerPrefs.SetFloat(PrefMusic, music);
         ApplyMusic();
+        FindAnyObjectByType<BgmLayers>()?.RefreshVolumesFromSettings();
     }
 
     public void SetSfx(float v)
     {
         sfx = Mathf.Clamp01(v);
         PlayerPrefs.SetFloat(PrefSfx, sfx);
+        ApplySfx();
+    }
+
+    public void RegisterMusic(AudioSource source)
+    {
+        if (source == null || musicSources.Contains(source)) return;
+        musicSources.Add(source);
+        ApplyMusic();
+    }
+
+    public void RegisterSfx(AudioSource source)
+    {
+        if (source == null || sfxSources.Contains(source)) return;
+        sfxSources.Add(source);
         ApplySfx();
     }
 
@@ -90,16 +125,15 @@ public class GameSettings : MonoBehaviour
 
     void ApplyMusic()
     {
-        if (musicSources == null) return;
+        // Only nudge sources that aren't mid-authored fade — BgmLayers also scales via MusicScale.
         foreach (var s in musicSources)
-            if (s != null) s.volume = music * master;
+            if (s != null) s.volume = Mathf.Min(s.volume, 1f);
     }
 
     void ApplySfx()
     {
-        if (sfxSources == null) return;
         foreach (var s in sfxSources)
-            if (s != null) s.volume = sfx * master;
+            if (s != null) s.volume = sfx; // SFX sources usually stay at authored level * SfxScale at PlayOneShot sites
     }
 
     public void Save() => PlayerPrefs.Save();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using UnityEngine.Video;
 
 [RequireComponent(typeof(PanelRenderer))]
 public class MainMenuController : MonoBehaviour
@@ -18,16 +19,45 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] AudioSource menuMusic;
     [SerializeField] float menuMusicVolume = 0.35f;
 
+    [Header("Background video")]
+    [SerializeField] VideoClip trailerClip;
+    [SerializeField] bool loopTrailer = true;
+    [SerializeField] bool muteTrailer = true;
+    [SerializeField] Vector2Int videoRtSize = new Vector2Int(1920, 1080);
+
+    [Header("Patch notes")]
+    [SerializeField] TextAsset patchNotesAsset;
+    [TextArea(8, 24)]
+    [SerializeField] string patchNotesFallback =
+        "TIME TO LIVE — Patch Notes\n\nv0.1\n• Main menu, shared run seed, field-kit HUD\n• World size setup, layered BGM, breaker walls\n";
+
     PanelRenderer panelRenderer;
+    VideoPlayer videoPlayer;
+    RenderTexture videoRt;
+
     VisualElement root;
+    VisualElement videoBg;
     VisualElement playIris;
     VisualElement irisCircle;
+    VisualElement panelNotes;
+    VisualElement panelSettings;
+    Button tabNotes;
+    Button tabSettings;
     Label idleLabel;
+    Label notesBody;
+    Label masterValue;
+    Label musicValue;
+    Label sfxValue;
+    Slider masterSlider;
+    Slider musicSlider;
+    Slider sfxSlider;
     int uiVersion = -1;
 
     float menuEnteredAt;
     bool transitioning;
     IVisualElementScheduledItem idleTicker;
+    IVisualElementScheduledItem videoBlit;
+    string activeTab = "notes";
 
     void OnEnable()
     {
@@ -37,6 +67,7 @@ public class MainMenuController : MonoBehaviour
             Debug.LogError("MainMenuController needs a Panel Renderer on this GameObject.");
             return;
         }
+        EnsureVideoPlayer();
         panelRenderer.RegisterUIReloadCallback(OnUIReload);
         GameSettings.EnsureExists();
         GameSettings.Instance.ApplyAll();
@@ -48,6 +79,50 @@ public class MainMenuController : MonoBehaviour
             panelRenderer.UnregisterUIReloadCallback(OnUIReload);
         idleTicker?.Pause();
         idleTicker = null;
+        videoBlit?.Pause();
+        videoBlit = null;
+        if (videoPlayer != null && videoPlayer.isPlaying)
+            videoPlayer.Pause();
+    }
+
+    void OnDestroy()
+    {
+        if (videoRt != null)
+        {
+            videoRt.Release();
+            Destroy(videoRt);
+            videoRt = null;
+        }
+    }
+
+    void Update()
+    {
+        if (transitioning) return;
+        if (menuMusic != null && GameSettings.Instance != null)
+            menuMusic.volume = menuMusicVolume * GameSettings.MusicScale * GameSettings.Instance.Master;
+    }
+
+    void EnsureVideoPlayer()
+    {
+        videoPlayer = GetComponent<VideoPlayer>();
+        if (videoPlayer == null)
+            videoPlayer = gameObject.AddComponent<VideoPlayer>();
+        videoPlayer.playOnAwake = false;
+        videoPlayer.isLooping = loopTrailer;
+        videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+        videoPlayer.audioOutputMode = muteTrailer
+            ? VideoAudioOutputMode.None
+            : VideoAudioOutputMode.Direct;
+        if (videoRt == null)
+        {
+            int w = Mathf.Max(640, videoRtSize.x);
+            int h = Mathf.Max(360, videoRtSize.y);
+            videoRt = new RenderTexture(w, h, 0, RenderTextureFormat.ARGB32);
+            videoRt.Create();
+        }
+        videoPlayer.targetTexture = videoRt;
+        if (trailerClip != null)
+            videoPlayer.clip = trailerClip;
     }
 
     void OnUIReload(PanelRenderer renderer, VisualElement visualRoot, int version)
@@ -58,7 +133,7 @@ public class MainMenuController : MonoBehaviour
         root = visualRoot;
         Bind(root);
         ResetIris();
-        StartMenuMusic();
+        SetupContent();
 
         menuEnteredAt = Time.unscaledTime;
         transitioning = false;
@@ -76,9 +151,123 @@ public class MainMenuController : MonoBehaviour
     {
         r.Q<Button>("btn-play")?.RegisterCallback<ClickEvent>(_ => Play());
         r.Q<Button>("btn-quit")?.RegisterCallback<ClickEvent>(_ => Quit());
+
+        tabNotes = r.Q<Button>("tab-notes");
+        tabSettings = r.Q<Button>("tab-settings");
+        tabNotes?.RegisterCallback<ClickEvent>(_ => ShowTab("notes"));
+        tabSettings?.RegisterCallback<ClickEvent>(_ => ShowTab("settings"));
+
+        videoBg = r.Q("video-bg");
         playIris = r.Q("play-iris");
         irisCircle = r.Q("iris-circle");
         idleLabel = r.Q<Label>("idle-label");
+        panelNotes = r.Q("panel-notes");
+        panelSettings = r.Q("panel-settings");
+        notesBody = r.Q<Label>("notes-body");
+        masterValue = r.Q<Label>("master-value");
+        musicValue = r.Q<Label>("music-value");
+        sfxValue = r.Q<Label>("sfx-value");
+        masterSlider = r.Q<Slider>("master-slider");
+        musicSlider = r.Q<Slider>("music-slider");
+        sfxSlider = r.Q<Slider>("sfx-slider");
+
+        var gs = GameSettings.EnsureExists();
+        if (masterSlider != null)
+        {
+            masterSlider.UnregisterValueChangedCallback(OnMasterChanged);
+            masterSlider.value = gs.Master;
+            masterSlider.RegisterValueChangedCallback(OnMasterChanged);
+        }
+        if (musicSlider != null)
+        {
+            musicSlider.UnregisterValueChangedCallback(OnMusicChanged);
+            musicSlider.value = gs.Music;
+            musicSlider.RegisterValueChangedCallback(OnMusicChanged);
+        }
+        if (sfxSlider != null)
+        {
+            sfxSlider.UnregisterValueChangedCallback(OnSfxChanged);
+            sfxSlider.value = gs.Sfx;
+            sfxSlider.RegisterValueChangedCallback(OnSfxChanged);
+        }
+        RefreshLabels();
+    }
+
+    void SetupContent()
+    {
+        string notes = patchNotesAsset != null ? patchNotesAsset.text : patchNotesFallback;
+        if (notesBody != null) notesBody.text = notes;
+
+        EnsureVideoPlayer();
+        if (trailerClip != null)
+        {
+            videoPlayer.clip = trailerClip;
+            if (!videoPlayer.isPlaying) videoPlayer.Play();
+        }
+
+        videoBlit?.Pause();
+        videoBlit = root.schedule.Execute(BlitVideo).Every(33);
+
+        ShowTab("notes");
+        StartMenuMusic();
+    }
+
+    void BlitVideo()
+    {
+        if (videoBg == null || videoRt == null) return;
+        videoBg.style.backgroundImage = Background.FromRenderTexture(videoRt);
+    }
+
+    void ShowTab(string tab)
+    {
+        activeTab = tab;
+        SetSelected(tabNotes, tab == "notes");
+        SetSelected(tabSettings, tab == "settings");
+        SetVisible(panelNotes, tab == "notes");
+        SetVisible(panelSettings, tab == "settings");
+        if (tab != "settings")
+            GameSettings.Instance?.Save();
+    }
+
+    static void SetSelected(Button b, bool on)
+    {
+        if (b == null) return;
+        if (on) b.AddToClassList("selected");
+        else b.RemoveFromClassList("selected");
+    }
+
+    static void SetVisible(VisualElement e, bool on)
+    {
+        if (e == null) return;
+        if (on) e.RemoveFromClassList("hidden");
+        else e.AddToClassList("hidden");
+    }
+
+    void OnMasterChanged(ChangeEvent<float> evt)
+    {
+        GameSettings.Instance.SetMaster(evt.newValue);
+        RefreshLabels();
+    }
+
+    void OnMusicChanged(ChangeEvent<float> evt)
+    {
+        GameSettings.Instance.SetMusic(evt.newValue);
+        RefreshLabels();
+    }
+
+    void OnSfxChanged(ChangeEvent<float> evt)
+    {
+        GameSettings.Instance.SetSfx(evt.newValue);
+        RefreshLabels();
+    }
+
+    void RefreshLabels()
+    {
+        var gs = GameSettings.Instance;
+        if (gs == null) return;
+        if (masterValue != null) masterValue.text = Mathf.RoundToInt(gs.Master * 100f) + "%";
+        if (musicValue != null) musicValue.text = Mathf.RoundToInt(gs.Music * 100f) + "%";
+        if (sfxValue != null) sfxValue.text = Mathf.RoundToInt(gs.Sfx * 100f) + "%";
     }
 
     void UpdateIdleLabel()
@@ -89,7 +278,7 @@ public class MainMenuController : MonoBehaviour
         int tenths = totalTenths % 10;
         int secs = (totalTenths / 10) % 60;
         int mins = totalTenths / 600;
-        idleLabel.text = $"DWELL  {mins:00}:{secs:00}.{tenths}";
+        idleLabel.text = $"{mins:00}:{secs:00}.{tenths}";
     }
 
     void ResetIris()
@@ -109,9 +298,8 @@ public class MainMenuController : MonoBehaviour
         menuMusic.loop = true;
         menuMusic.spatialBlend = 0f;
         menuMusic.priority = 0;
-        float master = GameSettings.Instance != null ? GameSettings.Instance.Master : 0.8f;
-        float music = GameSettings.Instance != null ? GameSettings.Instance.Music : 0.7f;
-        menuMusic.volume = menuMusicVolume * music * master;
+        var gs = GameSettings.EnsureExists();
+        menuMusic.volume = menuMusicVolume * gs.Music * gs.Master;
         if (!menuMusic.isPlaying) menuMusic.Play();
     }
 
@@ -123,11 +311,17 @@ public class MainMenuController : MonoBehaviour
             Play();
             evt.StopPropagation();
         }
+        else if (evt.keyCode == KeyCode.Escape)
+        {
+            ShowTab(activeTab == "settings" ? "notes" : "settings");
+            evt.StopPropagation();
+        }
     }
 
     void Play()
     {
         if (transitioning) return;
+        GameSettings.Instance?.Save();
         if (string.IsNullOrEmpty(gameSceneName))
         {
             Debug.LogError("MainMenuController: set gameSceneName.");
@@ -139,18 +333,17 @@ public class MainMenuController : MonoBehaviour
     IEnumerator PlayWithIris()
     {
         transitioning = true;
+        if (videoPlayer != null) videoPlayer.Stop();
         root?.Query<Button>().ForEach(b => b.SetEnabled(false));
 
         if (playIris != null && irisCircle != null)
         {
             playIris.RemoveFromClassList("hidden");
             playIris.pickingMode = PickingMode.Position;
-
             irisCircle.style.transitionDuration = new List<TimeValue> { new TimeValue(0f) };
             irisCircle.style.scale = new Scale(new Vector3(0.05f, 0.05f, 1f));
             irisCircle.RemoveFromClassList("expand");
             yield return null;
-
             irisCircle.style.transitionDuration = new List<TimeValue>
             {
                 new TimeValue(irisDuration * 1000f, TimeUnit.Millisecond)
@@ -178,6 +371,7 @@ public class MainMenuController : MonoBehaviour
     void Quit()
     {
         if (transitioning) return;
+        GameSettings.Instance?.Save();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

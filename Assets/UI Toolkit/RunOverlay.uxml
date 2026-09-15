@@ -1,12 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="USS/RunOverlay.uss" />
-    <ui:VisualElement name="overlay-root" class="overlay-root">
+    <ui:VisualElement name="overlay-root" class="overlay-root" picking-mode="Ignore">
 
         <ui:VisualElement name="iris-layer" class="iris-layer" picking-mode="Ignore">
             <ui:VisualElement name="iris-circle" class="iris-circle open-start" picking-mode="Ignore" />
         </ui:VisualElement>
 
-        <ui:VisualElement name="world-setup" class="panel-host">
+        <ui:VisualElement name="world-setup" class="panel-host" picking-mode="Position">
             <ui:VisualElement class="kit-panel setup-panel">
                 <ui:Label text="WORLD SETUP" class="panel-title" picking-mode="Ignore" />
                 <ui:Label text="Choose starting island size — or set your own." class="panel-sub" picking-mode="Ignore" />
@@ -30,7 +30,7 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <ui:VisualElement name="pause-overlay" class="pause-overlay hidden">
+        <ui:VisualElement name="pause-overlay" class="pause-overlay hidden" picking-mode="Position">
             <ui:VisualElement class="kit-panel pause-panel">
                 <ui:Label text="SETTINGS" class="panel-title" picking-mode="Ignore" />
                 <ui:Label text="ESC TO RESUME" class="panel-sub" picking-mode="Ignore" />

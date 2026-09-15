@@ -333,7 +333,10 @@ public class ExpandingIsland : MonoBehaviour
         if (hiddenHigh && rend != null)
             rend.enabled = false;
 
-        Vector3 dirtRest = new Vector3(rest.x, rest.y - dirtThickness, rest.z);
+        // Dirt stays on the shared ground plane. Per-prefab Y offsets only lift the
+        // grass mesh (Blender pivot fixes) — including them here made dirt stair-step.
+        float sharedGroundY = CellWorld(col, row).y + tileYOffset;
+        Vector3 dirtRest = new Vector3(rest.x, sharedGroundY - dirtThickness, rest.z);
         Transform dirtXf = null;
         Renderer dirtRend = null;
         if (dirtPrefab != null)

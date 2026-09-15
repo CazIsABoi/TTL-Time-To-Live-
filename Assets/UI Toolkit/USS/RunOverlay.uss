@@ -140,9 +140,6 @@
     -unity-text-align: middle-center;
 }
 
-.size-button:last-child {
-    margin-right: 0;
-}
 
 .size-button:hover {
     background-color: rgb(55, 50, 44);

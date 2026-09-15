@@ -26,14 +26,17 @@ public class GridAgent : MonoBehaviour
     public bool IsWaitingOnAgent => waitingOnAgent;
     public void SetPath(List<Vector3> worldPositions)
     {
+        ReleaseReservation();
         pathWorld = worldPositions ?? new List<Vector3>();
         pathIndex = 0;
         blockWaitTimer = 0f;
         waitingOnAgent = false;
+        forceCooldownTimer = 0f;
     }
     public List<Vector3> GetPathWorld() => pathWorld;
     public void ClearPath()
     {
+        ReleaseReservation();
         pathWorld = new List<Vector3>();
         pathIndex = 0;
         waitingOnAgent = false;

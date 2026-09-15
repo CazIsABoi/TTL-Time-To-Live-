@@ -8,8 +8,6 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] private int health = 20;
     [SerializeField] private int attackDamage = 1;
-    [SerializeField, Tooltip("Unused for obstacle smashing — smash attacks require a 4-direction adjacent cell.")]
-    private float attackRange = 1.6f;
     [SerializeField] private float attackInterval = 0.6f;
     [SerializeField] private float repathInterval = 0.4f;
     [SerializeField] private float exitWeight = 1.2f;
