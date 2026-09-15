@@ -313,3 +313,50 @@
     background-color: rgb(255, 252, 245);
     color: rgb(20, 18, 16);
 }
+
+.seed-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background-color: rgba(18, 16, 14, 0.55);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.seed-int {
+    width: 160px;
+    margin-right: 12px;
+}
+
+.seed-roll-button {
+    height: 34px;
+    min-width: 72px;
+    padding: 0 12px;
+    margin: 0;
+    background-color: var(--kit-bg-solid);
+    color: var(--kit-text);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-left-color: rgb(0, 0, 0);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    -unity-font-definition: url("project://database/Assets/UI%20Toolkit/ArchivoBlack-Regular.ttf?fileID=12800000&guid=bc162747ff727e7439af08583218ccca&type=3#ArchivoBlack-Regular");
+    font-size: 13px;
+    letter-spacing: 1px;
+    -unity-text-align: middle-center;
+}
+
+.seed-roll-button:hover {
+    background-color: rgb(55, 50, 44);
+}

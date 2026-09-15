@@ -733,8 +733,12 @@ MonoBehaviour:
   loadDelayAfterIris: 0.05
   menuMusic: {fileID: 830117727}
   menuMusicVolume: 0.35
-  musicSources: []
-  sfxSources: []
+  trailerClip: {fileID: 32900000, guid: fedf2a08bb338ec4fb1f00b3b935952b, type: 3}
+  loopTrailer: 1
+  muteTrailer: 1
+  videoRtSize: {x: 1280, y: 720}
+  patchNotesAsset: {fileID: 0}
+  patchNotesFallback: "TIME TO LIVE \u2014 Patch Notes\n\nv0.1\n\u2022 Main menu, shared run seed, field-kit HUD\n\u2022 World size setup, layered BGM, breaker walls\n"
 --- !u!114 &2139750398
 MonoBehaviour:
   m_ObjectHideFlags: 0

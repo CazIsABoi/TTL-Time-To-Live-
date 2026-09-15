@@ -108,7 +108,12 @@ public class ExpandingIsland : MonoBehaviour
     void Start()
     {
         if (waitForWorldSetup)
+        {
+            // Keep core / spawner invisible during World Setup (scene poses sit in camera view).
+            SetEndVisible(corePiece, false);
+            SetEndVisible(enemySpawner, false);
             return;
+        }
         BeginGeneration();
     }
 
@@ -135,6 +140,8 @@ public class ExpandingIsland : MonoBehaviour
     {
         if (generationStarted) return;
         generationStarted = true;
+        if (RunSeed.Instance != null)
+            seed = RunSeed.Instance.Seed;
         SyncGridReference();
         SyncSizeFromGrid();
         ClearGround();
@@ -490,6 +497,7 @@ public class ExpandingIsland : MonoBehaviour
     IEnumerator DropPiece(Transform xf, Vector3 rest, int col, int row)
     {
         if (xf == null) yield break;
+        SetEndVisible(xf, true);
         if (dropFromSky)
             xf.position = rest + Vector3.up * (dropHeight + 6f);
         PlayStamp(0.7f);
@@ -543,16 +551,28 @@ public class ExpandingIsland : MonoBehaviour
 
     void HideEndsInSky()
     {
-        if (!dropFromSky) return;
         if (corePiece != null)
-            corePiece.position = coreRest + Vector3.up * (dropHeight + 6f);
+        {
+            if (dropFromSky)
+                corePiece.position = coreRest + Vector3.up * (dropHeight + 6f);
+            SetEndVisible(corePiece, false);
+        }
         HideSpawnerInSky();
     }
 
     void HideSpawnerInSky()
     {
-        if (!dropFromSky || enemySpawner == null) return;
-        enemySpawner.position = spawnRest + Vector3.up * (dropHeight + 6f);
+        if (enemySpawner == null) return;
+        if (dropFromSky)
+            enemySpawner.position = spawnRest + Vector3.up * (dropHeight + 6f);
+        SetEndVisible(enemySpawner, false);
+    }
+
+    static void SetEndVisible(Transform xf, bool visible)
+    {
+        if (xf == null) return;
+        if (xf.gameObject.activeSelf != visible)
+            xf.gameObject.SetActive(visible);
     }
 
     int EndColumn(BoardEnd end) => end == BoardEnd.Left ? 0 : Columns - 1;

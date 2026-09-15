@@ -277,6 +277,8 @@ MonoBehaviour:
   customDefault: {x: 16, y: 8}
   island: {fileID: 780750543}
   grid: {fileID: 995088646}
+  runSeed: {fileID: 0}
+  handManager: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -476,7 +478,7 @@ MonoBehaviour:
   maxOrthoSize: 40
   fitMaxSizeToBoard: 1
   fitPadding: 1.15
-  confineMode: 0
+  confineMode: 1
   boundsPadding: 1.5
   boardHeightPadding: 6
   moveSpeed: 20

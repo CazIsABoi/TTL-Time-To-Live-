@@ -19,7 +19,7 @@ MonoBehaviour:
   sizeX: 1
   sizeY: 1
   waveLifespan: 8
-  amount: 4
+  amount: 2
   copiesInDeck: 2
   category: 0
   unlockScore: 0

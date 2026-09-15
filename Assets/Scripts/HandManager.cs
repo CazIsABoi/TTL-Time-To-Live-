@@ -93,6 +93,22 @@ public class HandManager : MonoBehaviour
         ShuffleInPlace(drawPile);
     }
 
+    /// <summary>
+    /// Rebuild hand RNG from the current RunSeed (call after World Setup SetSeed).
+    /// Safe before the opening hand is dealt.
+    /// </summary>
+    public void RebindFromRunSeed()
+    {
+        if (RunSeed.Instance != null)
+            rng = RunSeed.Instance.CreateRng("hand");
+        else
+            rng = new System.Random();
+
+        if (openingHandDealt) return;
+
+        ShuffleInPlace(drawPile);
+    }
+
     // Called (e.g. from GameController.OnEnemyDied) whenever score changes,
     // to add any newly-affordable cards into the draw pile and persist their
     // unlock so they stay unlocked in future runs.

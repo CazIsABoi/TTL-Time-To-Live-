@@ -33,6 +33,8 @@ public class RunOverlayUI : MonoBehaviour
     [Header("Refs (optional — auto-found)")]
     [SerializeField] ExpandingIsland island;
     [SerializeField] GridManager grid;
+    [SerializeField] RunSeed runSeed;
+    [SerializeField] HandManager handManager;
 
     PanelRenderer panelRenderer;
     VisualElement root;
@@ -50,6 +52,7 @@ public class RunOverlayUI : MonoBehaviour
     Slider sfxSlider;
     IntegerField customCols;
     IntegerField customRows;
+    IntegerField runSeedField;
     Button sizeCompact;
     Button sizeStandard;
     Button sizeVast;
@@ -68,6 +71,8 @@ public class RunOverlayUI : MonoBehaviour
         GameSettings.EnsureExists();
         if (island == null) island = FindAnyObjectByType<ExpandingIsland>();
         if (grid == null) grid = GridManager.Instance ?? FindAnyObjectByType<GridManager>();
+        if (runSeed == null) runSeed = RunSeed.Instance ?? FindAnyObjectByType<RunSeed>();
+        if (handManager == null) handManager = FindAnyObjectByType<HandManager>();
         selectedSize = standardSize;
         // Upgrade old serialized caps (was 48×24)
         if (customMax.x < 128 || customMax.y < 64)
@@ -142,6 +147,7 @@ public class RunOverlayUI : MonoBehaviour
         sfxSlider = root.Q<Slider>("sfx-slider");
         customCols = root.Q<IntegerField>("custom-cols");
         customRows = root.Q<IntegerField>("custom-rows");
+        runSeedField = root.Q<IntegerField>("run-seed");
         sizeCompact = root.Q<Button>("size-compact");
         sizeStandard = root.Q<Button>("size-standard");
         sizeVast = root.Q<Button>("size-vast");
@@ -168,6 +174,9 @@ public class RunOverlayUI : MonoBehaviour
         root.Q<Button>("btn-deploy")?.RegisterCallback<ClickEvent>(_ => Deploy());
         root.Q<Button>("btn-resume")?.RegisterCallback<ClickEvent>(_ => SetPaused(false));
         root.Q<Button>("btn-quit-menu")?.RegisterCallback<ClickEvent>(_ => QuitToMenu());
+        root.Q<Button>("btn-roll-seed")?.RegisterCallback<ClickEvent>(_ => RollSeedField());
+
+        BindSeedField();
 
         BindSettingsSliders();
 
@@ -285,7 +294,22 @@ public class RunOverlayUI : MonoBehaviour
     void UpdateSummary()
     {
         if (sizeSummary == null) return;
-        sizeSummary.text = $"{selectedLabel}  ·  {selectedSize.x} × {selectedSize.y}";
+        sizeSummary.text = $"{selectedLabel}  ·  {selectedSize.x} x {selectedSize.y}";
+    }
+
+    void BindSeedField()
+    {
+        if (runSeedField == null) return;
+        if (runSeed == null) runSeed = RunSeed.Instance ?? FindAnyObjectByType<RunSeed>();
+        int value = runSeed != null ? runSeed.Seed : UnityEngine.Random.Range(1, int.MaxValue);
+        if (value == 0) value = UnityEngine.Random.Range(1, int.MaxValue);
+        runSeedField.SetValueWithoutNotify(value);
+    }
+
+    void RollSeedField()
+    {
+        if (runSeedField == null) return;
+        runSeedField.value = UnityEngine.Random.Range(1, int.MaxValue);
     }
 
     void SetCustomRowVisible(bool visible)
@@ -330,6 +354,16 @@ public class RunOverlayUI : MonoBehaviour
 
         if (island == null) island = FindAnyObjectByType<ExpandingIsland>();
         if (grid == null) grid = GridManager.Instance ?? FindAnyObjectByType<GridManager>();
+        if (runSeed == null) runSeed = RunSeed.Instance ?? FindAnyObjectByType<RunSeed>();
+        if (handManager == null) handManager = FindAnyObjectByType<HandManager>();
+
+        int seedValue = runSeedField != null ? runSeedField.value : 0;
+        if (runSeed != null)
+            runSeed.SetSeed(seedValue);
+        else
+            Debug.LogWarning("RunOverlayUI: no RunSeed in scene; world seed not applied.");
+
+        handManager?.RebindFromRunSeed();
 
         int w = Mathf.Max(1, selectedSize.x);
         int h = Mathf.Max(1, selectedSize.y);

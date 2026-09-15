@@ -29,7 +29,7 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField] float introSpinSpeed = 40f;
     [Tooltip("Keep orbiting this long after the last tile lands, then settle.")]
     [SerializeField] float introPostReadySeconds = 1.25f;
-    [SerializeField] float introSettleSeconds = 1.4f;
+    [SerializeField] float introSettleSeconds = 1.8f;
     [SerializeField] AnimationCurve introCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     bool introPlaying;
     public bool IntroPlaying => introPlaying;
@@ -227,25 +227,28 @@ public class OrbitCamera : MonoBehaviour
             yield return null;
         }
 
+        // Target gameplay zoom early so the hold + settle share one continuous ease.
+        float endSize = ComputeIntroEndOrtho();
+
         float hold = introPostReadySeconds;
+        float holdDur = Mathf.Max(0.01f, introPostReadySeconds);
+        float holdStartSize = orthoSize;
         while (hold > 0f)
         {
             hold -= Time.deltaTime;
             yaw += introSpinSpeed * Time.deltaTime;
-            FrameBoardForIntro(lockOrtho: false);
+            FrameBoardForIntro(lockOrtho: true); // keep size under our ease, not the wide spin floor
+            float holdK = 1f - Mathf.Clamp01(hold / holdDur);
+            // Ease most of the zoom during the hold so the final settle is mostly orbit.
+            orthoSize = Mathf.Lerp(holdStartSize, endSize, introCurve.Evaluate(holdK * 0.65f));
             yield return null;
         }
 
         float startYaw = yaw;
         float startPitch = pitch;
-        float startSize = orthoSize; // whatever the fit settled on — no snap
-        float endSize = introOrthoEnd;
-        if (settleOrthoToBoardFit && TryGetBoardBounds(out Bounds settleBoard))
-        {
-            settleBoard.Encapsulate(settleBoard.center + Vector3.up * 24f);
-            endSize = Mathf.Max(introOrthoEnd, SizeToFitBoard(settleBoard) * settleFitScale);
-            endSize = Mathf.Clamp(endSize, minOrthoSize, maxOrthoSize);
-        }
+        float startSize = orthoSize;
+        endSize = ComputeIntroEndOrtho(); // refresh in case board bounds moved
+
         float t = 0f;
         while (t < introSettleSeconds)
         {
@@ -261,17 +264,52 @@ public class OrbitCamera : MonoBehaviour
         yaw = introYawEnd;
         pitch = introPitchEnd;
         orthoSize = endSize;
+        // Re-clamp with final angles so LateUpdate cannot snap on the next frame.
+        if (TryGetBoardBounds(out Bounds finalBoard))
+        {
+            float fit = SizeToFitBoard(finalBoard);
+            float maxSize = fitMaxSizeToBoard ? Mathf.Min(maxOrthoSize, fit) : maxOrthoSize;
+            orthoSize = Mathf.Clamp(orthoSize, minOrthoSize, Mathf.Max(minOrthoSize, maxSize));
+        }
         introPlaying = false;
         OnIntroFinished?.Invoke();
+    }
+
+
+    float ComputeIntroEndOrtho()
+    {
+        float savedYaw = yaw;
+        float savedPitch = pitch;
+        yaw = introYawEnd;
+        pitch = introPitchEnd;
+        float endSize = introOrthoEnd;
+        if (TryGetBoardBounds(out Bounds board))
+        {
+            float fit = SizeToFitBoard(board);
+            if (settleOrthoToBoardFit)
+                endSize = fit * settleFitScale;
+            float maxSize = fitMaxSizeToBoard ? Mathf.Min(maxOrthoSize, fit) : maxOrthoSize;
+            endSize = Mathf.Clamp(endSize, minOrthoSize, Mathf.Max(minOrthoSize, maxSize));
+        }
+        else
+        {
+            endSize = Mathf.Clamp(introOrthoEnd, minOrthoSize, maxOrthoSize);
+        }
+        yaw = savedYaw;
+        pitch = savedPitch;
+        return endSize;
     }
 
     void FrameBoardForIntro(bool lockOrtho)
     {
         if (target == null || !TryGetBoardBounds(out Bounds board)) return;
         target.position = new Vector3(board.center.x, target.position.y, board.center.z);
-        board.Encapsulate(board.center + Vector3.up * 24f);
         if (!lockOrtho)
-            orthoSize = Mathf.Max(introOrthoStart, SizeToFitBoard(board) * 0.92f);
+        {
+            // Same fit basis as gameplay / settle end (no extra height inflate).
+            float fit = SizeToFitBoard(board);
+            orthoSize = Mathf.Max(introOrthoStart, fit * settleFitScale);
+        }
     }
 
     Vector3 ClampTarget(Vector3 pos, Bounds board)

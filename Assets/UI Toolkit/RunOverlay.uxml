@@ -12,9 +12,9 @@
                 <ui:Label text="Choose starting island size — or set your own." class="panel-sub" picking-mode="Ignore" />
 
                 <ui:VisualElement name="size-row" class="size-row">
-                    <ui:Button text="COMPACT&#10;10 × 5" name="size-compact" class="size-button" />
-                    <ui:Button text="STANDARD&#10;16 × 8" name="size-standard" class="size-button selected" />
-                    <ui:Button text="VAST&#10;24 × 12" name="size-vast" class="size-button" />
+                    <ui:Button text="COMPACT&#10;10 x 5" name="size-compact" class="size-button" />
+                    <ui:Button text="STANDARD&#10;16 x 8" name="size-standard" class="size-button selected" />
+                    <ui:Button text="VAST&#10;24 x 12" name="size-vast" class="size-button" />
                     <ui:Button text="CUSTOM&#10;YOU PICK" name="size-custom" class="size-button" />
                 </ui:VisualElement>
 
@@ -25,7 +25,13 @@
                     <ui:IntegerField name="custom-rows" value="8" class="custom-int" />
                 </ui:VisualElement>
 
-                <ui:Label text="STANDARD  ·  16 × 8" name="size-summary" class="size-summary" picking-mode="Ignore" />
+                <ui:VisualElement name="seed-row" class="seed-row">
+                    <ui:Label text="RUN SEED" class="custom-field-label" picking-mode="Ignore" />
+                    <ui:IntegerField name="run-seed" value="0" class="custom-int seed-int" />
+                    <ui:Button text="ROLL" name="btn-roll-seed" class="seed-roll-button" />
+                </ui:VisualElement>
+
+                <ui:Label text="STANDARD  ·  16 x 8" name="size-summary" class="size-summary" picking-mode="Ignore" />
                 <ui:Button text="DEPLOY" name="btn-deploy" class="menu-button primary" />
             </ui:VisualElement>
         </ui:VisualElement>

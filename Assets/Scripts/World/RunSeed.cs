@@ -5,6 +5,7 @@ using UnityEngine;
 /// Single run seed for hand, world, and enemy RNG.
 /// Put on the same object as GameController (or any early-awake bootstrap).
 /// Set seed in the Inspector for reproducible runs; leave 0 to roll one.
+/// World Setup can override via SetSeed before generation.
 /// </summary>
 public class RunSeed : MonoBehaviour
 {
@@ -34,6 +35,15 @@ public class RunSeed : MonoBehaviour
     {
         if (Instance == this)
             Instance = null;
+    }
+
+    /// <summary>Override the run seed (e.g. from World Setup) before generation / dealing.</summary>
+    public void SetSeed(int newSeed)
+    {
+        if (newSeed == 0 && randomizeIfZero)
+            newSeed = UnityEngine.Random.Range(1, int.MaxValue);
+        seed = newSeed;
+        Debug.Log($"[RunSeed] run seed set = {seed}");
     }
 
     /// <summary>
